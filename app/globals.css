@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply font-sans;
+  }
+}
+
+.brand-font {
+  font-family: var(--font-outfit);
+}
+
+.logo-font {
+  font-family: var(--font-outfit);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+}
+
+@keyframes space-sky-twinkle {
+  0%, 100% {
+    opacity: calc(var(--space-star-opacity) * 0.46);
+    transform: scale(0.82);
+  }
+  50% {
+    opacity: calc(var(--space-star-opacity) + 0.22);
+    transform: scale(1.18);
+  }
+}
+
+.space-sky-star {
+  animation-name: space-sky-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: opacity, transform;
+}
+
+@keyframes space-sky-shoot {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--space-shoot-angle)) translateX(0) scaleX(0.34);
+  }
+  6% {
+    opacity: var(--space-shoot-opacity);
+  }
+  18% {
+    opacity: 0;
+    transform: rotate(var(--space-shoot-angle)) translateX(48vw) scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--space-shoot-angle)) translateX(48vw) scaleX(1);
+  }
+}
+
+.space-sky-shoot {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.96) 100%);
+  animation-name: space-sky-shoot;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+.shiny-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline-offset: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #05080c;
+  white-space: nowrap;
+  background: linear-gradient(180deg, #ffffff 0%, #eef4f7 100%);
+  box-shadow: 0 18px 40px rgba(4, 7, 12, 0.14);
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease,
+    border-color 250ms ease,
+    background 250ms ease;
+}
+
+.shiny-cta:active {
+  transform: translateY(0);
+}
+
+.shiny-cta:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  box-shadow: none;
+}
+
+.shiny-cta__label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.shiny-cta:is(:hover, :focus-visible):not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(137, 200, 222, 0.52);
+  background: linear-gradient(180deg, #ffffff 0%, #f5fafc 100%);
+  box-shadow:
+    0 22px 44px rgba(10, 24, 32, 0.12);
+}
+
+.shiny-cta:focus-visible {
+  outline: 1px solid rgba(137, 200, 222, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .space-sky-star,
+  .space-sky-shoot {
+    animation: none;
+  }
+
+  .shiny-cta {
+    transition-duration: 0ms;
+  }
+}
