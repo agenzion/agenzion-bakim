@@ -5,13 +5,16 @@ const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
 
 export interface ContentItem {
   id: string;
-  slug: string;
+  slug?: string;
   title: string;
   description: string;
   content?: string;
   image: string;
   date?: string;
   category?: string;
+  label?: string;
+  reviewUrl?: string;
+  color?: string;
   author?: {
     name: string;
     role: string;
@@ -33,8 +36,56 @@ const defaultData: AppData = {
     { id: '2', slug: 'gelecegin-web-deneyimi-2', title: 'Geleceğin Web Deneyimi 2', description: 'Yenilikçi arayüzler ve etkileşimli tasarım yaklaşımları.', image: 'https://picsum.photos/seed/concept2/1200/800' },
   ],
   portfolio: [
-    { id: '1', slug: 'proje-ismi-1', title: 'Proje İsmi 1', description: 'Web Tasarım & Geliştirme', image: 'https://picsum.photos/seed/port1/800/800' },
-    { id: '2', slug: 'proje-ismi-2', title: 'Proje İsmi 2', description: 'Web Tasarım & Geliştirme', image: 'https://picsum.photos/seed/port2/800/800' },
+    {
+      id: '1',
+      title: 'Cyber Dust',
+      description:
+        'Dijital hafızanın kırılganlığını keşfeden parçacık tabanlı 3D ortam. Kullanıcılar, parçalanan veri kümeleri arasında gerçek zamanlı olarak gezinir.',
+      label: 'Sürükleyici Web',
+      image: '/images/project-placeholder.jpg',
+      reviewUrl: '',
+      color: '#06b6d4',
+    },
+    {
+      id: '2',
+      title: 'Void Runner',
+      description:
+        'Prosedürel olarak oluşturulmuş brutalist bir boşlukta geçen yüksek kaliteli tarayıcı tabanlı yarış deneyimi. Post-processing overdrive ile sıfır gecikmeli giriş.',
+      label: 'Oyun Deneyimi',
+      image: '/images/project-placeholder.jpg',
+      reviewUrl: '',
+      color: '#ef4444',
+    },
+    {
+      id: '3',
+      title: 'Neo Genesis',
+      description:
+        'Kullanıcının web kamerası aracılığıyla duygusal analizine dayalı olarak düzenini ve renk teorisini uyarlayan deneysel bir üretken arayüz.',
+      label: 'Yapay Zeka Arayüzü',
+      image: '/images/project-placeholder.jpg',
+      reviewUrl: '',
+      color: '#8b5cf6',
+    },
+    {
+      id: '4',
+      title: 'Aether Mind',
+      description:
+        'Karmaşık sinir ağlarını keşfedilebilir takımyıldızlar olarak görselleştirme. Veri bilimcilerin VRda karar ağaçları arasında dolaşması için bir araç.',
+      label: 'Uzamsal Bilişim',
+      image: '/images/project-placeholder.jpg',
+      reviewUrl: '',
+      color: '#3b82f6',
+    },
+    {
+      id: '5',
+      title: 'Solstice',
+      description:
+        'Zamanın aydınlatmayı kontrol ettiği lüks bir saat yapılandırıcısı. Tamamen tarayıcıda raytracing kalitesinde gölgelerle işlenmiştir.',
+      label: 'E-Ticaret',
+      image: '/images/project-placeholder.jpg',
+      reviewUrl: '',
+      color: '#f59e0b',
+    },
   ],
   blog: [
     { 
@@ -93,6 +144,10 @@ const defaultData: AppData = {
   ]
 };
 
+function normalizeArray<T>(value: T[] | undefined, fallback: T[]) {
+  return Array.isArray(value) ? value : fallback;
+}
+
 export async function getDb(): Promise<AppData> {
   if (!fs.existsSync(path.join(process.cwd(), 'data'))) {
     fs.mkdirSync(path.join(process.cwd(), 'data'));
@@ -108,7 +163,12 @@ export async function getDb(): Promise<AppData> {
     if (!data || data.trim() === '') {
       return defaultData;
     }
-    return JSON.parse(data);
+    const parsed = JSON.parse(data) as Partial<AppData>;
+    return {
+      concepts: normalizeArray(parsed.concepts, defaultData.concepts),
+      portfolio: normalizeArray(parsed.portfolio, defaultData.portfolio),
+      blog: normalizeArray(parsed.blog, defaultData.blog),
+    };
   } catch (error) {
     console.error('Error parsing db.json, returning default data:', error);
     return defaultData;

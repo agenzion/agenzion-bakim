@@ -4,7 +4,7 @@ export const siteConfig = {
   locale: 'tr_TR',
   ogImage: '/images/logo-acik.png',
   description:
-    'Agenzion; performans, SEO ve yaratıcı etkileşimi birlikte ele alan Istanbul merkezli butik web tasarım ve geliştirme stüdyosudur.',
+    'Agenzion; performans, SEO ve yaratıcı etkileşimi birlikte ele alan İstanbul merkezli butik web tasarım ve geliştirme stüdyosudur.',
   email: 'info@agenzion.com',
   phone: '+905404553444',
   address: {

@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { getDb, saveDb, AppData } from '@/lib/db';
 import { getPublicContent } from '@/lib/content';
@@ -19,6 +20,8 @@ export async function POST(request: Request) {
   try {
     const newData: AppData = await request.json();
     await saveDb(newData);
+    revalidatePath('/');
+    revalidatePath('/en');
     return NextResponse.json({ message: 'Data saved successfully' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to save data' }, { status: 500 });

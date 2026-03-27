@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
 import MobileMenu from './MobileMenu';
 import BrandLogo from './BrandLogo';
 import LanguageSwitch from './LanguageSwitch';
@@ -15,6 +15,7 @@ const Navbar: React.FC<
   } & NavigationProps
 > = ({ dark = false, locale, alternatePath, copy }) => {
   const { scrollY } = useScroll();
+  const [isDarkBackground, setIsDarkBackground] = React.useState(dark);
   
   // Background opacity starts at 0 and goes to 0.8 after 100px scroll
   const backgroundColor = useTransform(
@@ -56,6 +57,10 @@ const Navbar: React.FC<
     [dark ? 1 : 0, 1]
   );
 
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    setIsDarkBackground(dark || latest > 8);
+  });
+
   return (
     <motion.nav 
       style={{ 
@@ -95,10 +100,19 @@ const Navbar: React.FC<
           >
             {copy.contact}
           </Link>
-          <LanguageSwitch locale={locale} href={alternatePath} />
+          <span
+            aria-hidden="true"
+            className="h-4 w-px bg-current/25 mix-blend-normal"
+          />
+          <LanguageSwitch locale={locale} href={alternatePath} dark={isDarkBackground} />
         </div>
         <div className="flex items-center gap-3 md:hidden">
-          <LanguageSwitch locale={locale} href={alternatePath} className="h-9 min-w-9 px-2.5" />
+          <LanguageSwitch
+            locale={locale}
+            href={alternatePath}
+            dark={isDarkBackground}
+            className="text-sm"
+          />
           <MobileMenu color="white" locale={locale} copy={copy} />
         </div>
     </motion.nav>

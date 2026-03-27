@@ -3,10 +3,48 @@
 import React, { useState, useEffect } from 'react';
 import Footer from '@/components/Footer';
 import { motion } from 'motion/react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { Plus, Trash2, Save, RefreshCw, LayoutDashboard, Briefcase, BookOpen, Lightbulb, ArrowLeft, Lock, User } from 'lucide-react';
+import { Plus, Trash2, Save, RefreshCw, Briefcase, BookOpen, Lightbulb, ArrowLeft, Lock, User } from 'lucide-react';
 import { AppData, ContentItem } from '@/lib/db';
+
+const projectColors = ['#06b6d4', '#ef4444', '#8b5cf6', '#3b82f6', '#f59e0b'];
+
+function createNewItem(tab: keyof AppData, count: number): ContentItem {
+  if (tab === 'portfolio') {
+    return {
+      id: Date.now().toString(),
+      title: 'Yeni Proje',
+      description: 'Proje açıklaması',
+      label: 'Etiket',
+      reviewUrl: '',
+      image: '/images/project-placeholder.jpg',
+      color: projectColors[count % projectColors.length],
+    };
+  }
+
+  if (tab === 'blog') {
+    const title = 'Yeni Başlık';
+    const slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+    return {
+      id: Date.now().toString(),
+      slug,
+      title,
+      description: 'Yeni Açıklama',
+      content: '<p>Yeni içerik buraya...</p>',
+      image: 'https://picsum.photos/800/600',
+      date: new Date().toISOString().split('T')[0],
+      category: 'Genel',
+    };
+  }
+
+  return {
+    id: Date.now().toString(),
+    title: 'Yeni Başlık',
+    description: 'Yeni Açıklama',
+    image: '/images/project-placeholder.jpg',
+  };
+}
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -17,7 +55,7 @@ export default function AdminPage() {
   const [data, setData] = useState<AppData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<keyof AppData>('concepts');
+  const [activeTab, setActiveTab] = useState<keyof AppData>('portfolio');
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -70,18 +108,7 @@ export default function AdminPage() {
 
   const addItem = () => {
     if (!data) return;
-    const title = 'Yeni Başlık';
-    const slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-    const newItem: ContentItem = {
-      id: Date.now().toString(),
-      slug: slug,
-      title: title,
-      description: 'Yeni Açıklama',
-      content: activeTab === 'blog' ? '<p>Yeni içerik buraya...</p>' : undefined,
-      image: 'https://picsum.photos/800/600',
-      date: activeTab === 'blog' ? new Date().toISOString().split('T')[0] : undefined,
-      category: activeTab === 'blog' ? 'Genel' : undefined,
-    };
+    const newItem = createNewItem(activeTab, data[activeTab].length);
     setData({
       ...data,
       [activeTab]: [newItem, ...data[activeTab]],
@@ -105,6 +132,19 @@ export default function AdminPage() {
       ),
     });
   };
+
+  const isPortfolioTab = activeTab === 'portfolio';
+  const isBlogTab = activeTab === 'blog';
+  const addButtonLabel = isPortfolioTab
+    ? 'Yeni Proje Kartı Ekle'
+    : isBlogTab
+      ? 'Yeni Blog Yazısı Ekle'
+      : 'Yeni Kart Ekle';
+  const helperText = isPortfolioTab
+    ? 'Ana sayfadaki proje kartlarını buradan düzenleyebilir, ekleyebilir ve kaldırabilirsiniz.'
+    : isBlogTab
+      ? 'Blog içeriklerini ve alanlarını buradan yönetebilirsiniz.'
+      : 'İçerikleri buradan yönetebilirsiniz.';
 
   if (!isLoggedIn) {
     return (
@@ -188,7 +228,7 @@ export default function AdminPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <div>
             <h1 className="text-5xl font-black tracking-tighter brand-font mb-2">Admin Panel</h1>
-            <p className="text-neutral-400">İçerikleri buradan yönetebilirsiniz.</p>
+            <p className="text-neutral-400">{helperText}</p>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -203,7 +243,7 @@ export default function AdminPage() {
               className="flex items-center gap-2 bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-neutral-200 transition-colors disabled:opacity-50"
             >
               {saving ? <RefreshCw className="animate-spin" size={20} /> : <Save size={20} />}
-              {saving ? 'Kaydediliyor...' : 'Değişiklikleri Yayınla'}
+              {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
             </button>
           </div>
         </div>
@@ -211,8 +251,8 @@ export default function AdminPage() {
         {/* Tabs */}
         <div className="flex flex-wrap gap-4 mb-12">
           {[
+            { id: 'portfolio', label: 'Projeler', icon: Briefcase },
             { id: 'concepts', label: 'Konseptler', icon: Lightbulb },
-            { id: 'portfolio', label: 'Portfolyo', icon: Briefcase },
             { id: 'blog', label: 'Blog', icon: BookOpen },
           ].map((tab) => (
             <button
@@ -235,7 +275,7 @@ export default function AdminPage() {
             className="w-full py-4 border-2 border-dashed border-neutral-800 rounded-3xl flex items-center justify-center gap-2 text-neutral-500 hover:border-neutral-600 hover:text-neutral-300 transition-all group"
           >
             <Plus size={24} className="group-hover:scale-125 transition-transform" />
-            Yeni Ekle
+            {addButtonLabel}
           </button>
 
           {data && data[activeTab].map((item) => (
@@ -247,13 +287,22 @@ export default function AdminPage() {
               className="bg-neutral-900/50 border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row gap-6 group"
             >
               <div className="relative w-full md:w-48 aspect-video md:aspect-square rounded-2xl overflow-hidden bg-neutral-800 flex-shrink-0">
-                <Image src={item.image} alt={item.title} fill className="object-cover" referrerPolicy="no-referrer" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.image || '/images/project-placeholder.jpg'}
+                  alt={item.title}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
               </div>
               
               <div className="flex-grow space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Başlık</label>
+                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">
+                      {isPortfolioTab ? 'Proje İsmi' : 'Başlık'}
+                    </label>
                     <input
                       type="text"
                       value={item.title}
@@ -261,28 +310,52 @@ export default function AdminPage() {
                       className="w-full bg-neutral-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-white/20 outline-none"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Slug</label>
-                    <input
-                      type="text"
-                      value={item.slug}
-                      onChange={(e) => updateItem(item.id, 'slug', e.target.value)}
-                      className="w-full bg-neutral-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-white/20 outline-none"
-                    />
-                  </div>
+                  {isPortfolioTab ? (
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Etiket</label>
+                      <input
+                        type="text"
+                        value={item.label || ''}
+                        onChange={(e) => updateItem(item.id, 'label', e.target.value)}
+                        className="w-full bg-neutral-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-white/20 outline-none"
+                      />
+                    </div>
+                  ) : isBlogTab ? (
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Slug</label>
+                      <input
+                        type="text"
+                        value={item.slug || ''}
+                        onChange={(e) => updateItem(item.id, 'slug', e.target.value)}
+                        className="w-full bg-neutral-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-white/20 outline-none"
+                      />
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {isPortfolioTab && (
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Proje İnceleme URL&apos;si</label>
+                      <input
+                        type="url"
+                        value={item.reviewUrl || ''}
+                        onChange={(e) => updateItem(item.id, 'reviewUrl', e.target.value)}
+                        className="w-full bg-neutral-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-white/20 outline-none"
+                        placeholder="https://ornek.com/proje"
+                      />
+                    </div>
+                  )}
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Görsel URL</label>
                     <input
                       type="text"
-                      value={item.image}
+                      value={item.image || ''}
                       onChange={(e) => updateItem(item.id, 'image', e.target.value)}
                       className="w-full bg-neutral-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-white/20 outline-none"
                     />
                   </div>
-                  {activeTab === 'blog' && (
+                  {isBlogTab && (
                     <div className="space-y-1">
                       <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Kategori</label>
                       <input
@@ -300,12 +373,12 @@ export default function AdminPage() {
                   <textarea
                     value={item.description}
                     onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                    rows={2}
+                    rows={isPortfolioTab ? 4 : 2}
                     className="w-full bg-neutral-800 border-none rounded-xl px-4 py-2 focus:ring-2 focus:ring-white/20 outline-none resize-none"
                   />
                 </div>
 
-                {activeTab === 'blog' && (
+                {isBlogTab && (
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">İçerik (HTML)</label>
                     <textarea
@@ -317,7 +390,7 @@ export default function AdminPage() {
                   </div>
                 )}
 
-                {activeTab === 'blog' && (
+                {isBlogTab && (
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Tarih (YYYY-MM-DD)</label>
                     <input
@@ -343,7 +416,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <Footer copy={{ copyrightName: 'Agenzion Web Studyosu' }} />
+      <Footer copy={{ copyrightName: 'Agenzion Web Stüdyosu' }} />
     </main>
   );
 }

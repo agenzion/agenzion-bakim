@@ -459,29 +459,50 @@ export default function StarTextManifesto({
       resizeTimeout = setTimeout(init, 250);
     };
 
+    let isPaused = false;
+
     const draw = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      if (!isPaused) {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
 
-      ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0, 0, width, height);
 
-      const currentTime = performance.now();
-      particlesRef.current.forEach((particle) => {
-        particle.update(currentTime);
-        particle.draw(ctx, currentTime);
-      });
+        const currentTime = performance.now();
+        particlesRef.current.forEach((particle) => {
+          particle.update(currentTime);
+          particle.draw(ctx, currentTime);
+        });
+      }
 
       animationFrameId = window.requestAnimationFrame(draw);
     };
+
+    const handleVisibilityChange = () => {
+      isPaused = document.hidden;
+    };
+
+    // On mobile the canvas can scroll out of view; pause when not intersecting.
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isPaused = !entry.isIntersecting || document.hidden;
+      },
+      { threshold: 0 },
+    );
+    observer.observe(canvas);
 
     initializeWithFonts();
     draw();
 
     window.addEventListener("resize", handleResize);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       disposed = true;
+      isPaused = true;
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      observer.disconnect();
 
       if (resizeTimeout) {
         clearTimeout(resizeTimeout);

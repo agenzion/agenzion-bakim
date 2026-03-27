@@ -12,6 +12,15 @@ import {
   Copy,
 } from 'lucide-react';
 
+const TOKEN_SPLIT_REGEX =
+  /(\s+|[(){}[\]:;,.<>]|\/\/.*|\/\*[\s\S]*?\*\/|"[^"]*"|'[^']*'|`[^`]*`)/g;
+const KEYWORD_TOKEN_REGEX =
+  /^(import|export|const|let|var|function|return|async|await|class|from|if|else|for|while|interface|type)$/;
+const COMPONENT_NAME_TOKEN_REGEX = /^[A-Z][a-zA-Z0-9]*$/;
+const NUMBER_TOKEN_REGEX = /^\d+$/;
+const STRING_TOKEN_REGEX = /^"[^"]*"$|^'[^']*'|`[^`]*`$/;
+const JSX_TAG_TOKEN_REGEX = /^[a-z][a-z0-9-]*$/i;
+
 const getHomepageSample = (copy: {
   homepageComponentName: string;
   homeLabel: string;
@@ -220,50 +229,54 @@ const LiveResultView: React.FC<{
   );
 };
 
-const CodeHighlighter: React.FC<{ code: string; language: string }> = ({ code, language }) => {
-  const tokens = code.split(/(\s+|[(){}[\]:;,.<>]|\/\/.*|\/\*[\s\S]*?\*\/|"[^"]*"|'[^']*'|`[^`]*`)/g);
-  return (
-    <>
-      {tokens.map((token, index) => {
-        let colorClass = 'text-[#d4d4d4]';
-        if (
-          /^(import|export|const|let|var|function|return|async|await|class|from|if|else|for|while|interface|type)$/.test(
-            token
-          )
-        ) {
-          colorClass = 'text-[#c586c0]';
-        } else if (/^[A-Z][a-zA-Z0-9]*$/.test(token)) {
-          colorClass = 'text-[#4ec9b0]';
-        } else if (/^\d+$/.test(token)) {
-          colorClass = 'text-[#b5cea8]';
-        } else if (/^"[^"]*"$|^'[^']*'|`[^`]*`$/.test(token)) {
-          colorClass = 'text-[#ce9178]';
-        } else if (token.trim().startsWith('//') || token.trim().startsWith('/*')) {
-          colorClass = 'text-[#6a9955]';
-        }
+const CodeHighlighter = React.memo(function CodeHighlighter({
+  code,
+  language,
+}: {
+  code: string;
+  language: string;
+}) {
+  const highlightedTokens = useMemo(() => {
+    const tokens = code.split(TOKEN_SPLIT_REGEX);
 
-        if (token === '{' || token === '}') colorClass = 'text-[#ffd700]';
-        if (token === '(' || token === ')') colorClass = 'text-[#da70d6]';
-        if (token === '<' || token === '>' || token === '/>') colorClass = 'text-[#808080]';
+    return tokens.map((token, index) => {
+      let colorClass = 'text-[#d4d4d4]';
 
-        if (
-          language === 'typescript' &&
-          /^[a-z][a-z0-9-]*$/i.test(token) &&
-          index > 0 &&
-          tokens[index - 1] === '<'
-        ) {
-          colorClass = 'text-[#569cd6]';
-        }
+      if (KEYWORD_TOKEN_REGEX.test(token)) {
+        colorClass = 'text-[#c586c0]';
+      } else if (COMPONENT_NAME_TOKEN_REGEX.test(token)) {
+        colorClass = 'text-[#4ec9b0]';
+      } else if (NUMBER_TOKEN_REGEX.test(token)) {
+        colorClass = 'text-[#b5cea8]';
+      } else if (STRING_TOKEN_REGEX.test(token)) {
+        colorClass = 'text-[#ce9178]';
+      } else if (token.trim().startsWith('//') || token.trim().startsWith('/*')) {
+        colorClass = 'text-[#6a9955]';
+      }
 
-        return (
-          <span key={index} className={colorClass}>
-            {token}
-          </span>
-        );
-      })}
-    </>
-  );
-};
+      if (token === '{' || token === '}') colorClass = 'text-[#ffd700]';
+      if (token === '(' || token === ')') colorClass = 'text-[#da70d6]';
+      if (token === '<' || token === '>' || token === '/>') colorClass = 'text-[#808080]';
+
+      if (
+        language === 'typescript' &&
+        JSX_TAG_TOKEN_REGEX.test(token) &&
+        index > 0 &&
+        tokens[index - 1] === '<'
+      ) {
+        colorClass = 'text-[#569cd6]';
+      }
+
+      return (
+        <span key={index} className={colorClass}>
+          {token}
+        </span>
+      );
+    });
+  }, [code, language]);
+
+  return <>{highlightedTokens}</>;
+});
 
 const CodeEditor: React.FC<{
   copy: {
@@ -334,7 +347,7 @@ const CodeEditor: React.FC<{
       );
 
       if (index < source.length) {
-        typingFrameRef.current = window.setTimeout(typeNextChunk, 15);
+        typingFrameRef.current = window.setTimeout(typeNextChunk, 20);
         return;
       }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'motion/react';
 import Image from 'next/image';
 
@@ -32,11 +32,28 @@ const PlanetBackdrop = ({ planets }: { planets: PlanetSpec[] }) => {
   const isInView = useInView(backdropRef, {
     amount: 0.2,
   });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+
+    const updateIsMobile = () => {
+      setIsMobile(mediaQuery.matches);
+    };
+
+    updateIsMobile();
+    mediaQuery.addEventListener('change', updateIsMobile);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateIsMobile);
+    };
+  }, []);
 
   return (
     <div ref={backdropRef} className="absolute inset-0 overflow-hidden pointer-events-none">
       {planets.map((planet) => {
         const baseScale = planet.imageScale ?? 1.2;
+        const shouldAnimateTexture = planet.animateTexture !== false && !isMobile;
         const texture = (
           <Image
             src={planet.src}
@@ -53,7 +70,7 @@ const PlanetBackdrop = ({ planets }: { planets: PlanetSpec[] }) => {
 
         const planetBody = (
           <div className="absolute inset-0 rounded-full overflow-hidden bg-black/40 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
-            {planet.animateTexture === false ? (
+            {!shouldAnimateTexture ? (
               <div
                 className="absolute inset-[-7%]"
                 style={{ transform: `translateX(-2%) scale(${baseScale})` }}

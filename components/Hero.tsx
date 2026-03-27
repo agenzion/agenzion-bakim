@@ -9,6 +9,7 @@ import BrandLogo from './BrandLogo';
 import LanguageSwitch from './LanguageSwitch';
 import type { NavigationCopy } from './navigation';
 import { type Locale, getLocalizedPath } from '@/lib/i18n';
+import useIsMobile from '@/lib/useIsMobile';
 
 const Hero: React.FC<{
   locale: Locale;
@@ -21,6 +22,7 @@ const Hero: React.FC<{
   navigation: NavigationCopy;
 }> = ({ locale, alternatePath, copy, navigation }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Tall container for scroll runway
   const { scrollYProgress } = useScroll({
@@ -81,29 +83,34 @@ const Hero: React.FC<{
     <div ref={containerRef} className="relative h-[450vh]">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full p-8 flex justify-between items-center z-50">
-          <Link href={getLocalizedPath(locale, 'home')} className="block">
-            <BrandLogo
-              darkOpacity={darkLogoOpacity}
-              lightOpacity={lightLogoOpacity}
-              priority
-            />
+        <Link href={getLocalizedPath(locale, 'home')} className="block">
+          <BrandLogo
+            darkOpacity={darkLogoOpacity}
+            lightOpacity={lightLogoOpacity}
+            priority
+          />
+        </Link>
+        <div className="hidden md:flex items-center gap-8">
+          <Link href={getLocalizedPath(locale, 'about')}>
+            <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.about}</motion.span>
           </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <Link href={getLocalizedPath(locale, 'about')}>
-              <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.about}</motion.span>
-            </Link>
-            <Link href={getLocalizedPath(locale, 'blog')}>
-              <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.blog}</motion.span>
-            </Link>
-            <Link href={getLocalizedPath(locale, 'contact')}>
-              <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.contact}</motion.span>
-            </Link>
-            <LanguageSwitch locale={locale} href={alternatePath} />
-          </div>
-          <div className="flex items-center gap-3 md:hidden">
-            <LanguageSwitch locale={locale} href={alternatePath} className="h-9 min-w-9 px-2.5" />
-            <MobileMenu color={navColor} locale={locale} copy={navigation} />
-          </div>
+          <Link href={getLocalizedPath(locale, 'blog')}>
+            <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.blog}</motion.span>
+          </Link>
+          <Link href={getLocalizedPath(locale, 'contact')}>
+            <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.contact}</motion.span>
+          </Link>
+          <motion.span
+            aria-hidden="true"
+            style={{ backgroundColor: navColor }}
+            className="h-4 w-px"
+          />
+          <LanguageSwitch locale={locale} href={alternatePath} color={navColor} />
+        </div>
+        <div className="flex items-center gap-3 md:hidden">
+          <LanguageSwitch locale={locale} href={alternatePath} color={navColor} className="text-sm" />
+          <MobileMenu color={navColor} locale={locale} copy={navigation} />
+        </div>
       </nav>
 
       {/* Sticky Viewport */}
@@ -143,70 +150,78 @@ const Hero: React.FC<{
           {/* Celestial System */}
           <div className="relative w-full md:w-1/2 flex items-center justify-center md:justify-end">
             <div className="relative w-[300px] h-[300px] md:w-[600px] md:h-[600px] flex items-center justify-center">
-          {/* THE SUN */}
-          <motion.div
-            style={{
-              boxShadow: sunShadow,
-              backgroundColor: sunColor,
-            }}
-            className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full z-20 overflow-hidden"
-          >
-            {/* Sun Surface Details */}
-            <motion.div 
-              initial={{ x: '-7%', scale: 1.42 }}
-              style={{ opacity: useTransform(scrollYProgress, [0, END_MOVEMENT - 0.05, END_MOVEMENT], [0.26, 0.14, 0]) }}
-              className="absolute inset-0 rounded-full overflow-hidden pointer-events-none select-none will-change-transform"
-              animate={{
-                x: ['-7%', '7%', '-7%'],
-                scale: [1.42, 1.45, 1.42],
-              }}
-              transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-              onContextMenu={(event) => event.preventDefault()}
-              onDragStart={(event) => event.preventDefault()}
-            >
-              <Image 
-                src={SUN_IMAGE_SRC} 
-                alt="Sun Texture"
-                fill
-                priority
-                sizes="(min-width: 768px) 20rem, 16rem"
-                className="object-cover contrast-125 saturate-125 brightness-110"
-                draggable={false}
-                referrerPolicy="no-referrer"
-              />
-            </motion.div>
-          </motion.div>
+              {/* THE SUN */}
+              <motion.div
+                style={{
+                  boxShadow: sunShadow,
+                  backgroundColor: sunColor,
+                }}
+                className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full z-20 overflow-hidden"
+              >
+                {/* Sun Surface Details */}
+                <motion.div
+                  initial={{ x: '-7%', scale: 1.42 }}
+                  style={{ opacity: useTransform(scrollYProgress, [0, END_MOVEMENT - 0.05, END_MOVEMENT], [0.26, 0.14, 0]) }}
+                  className="absolute inset-0 rounded-full overflow-hidden pointer-events-none select-none will-change-transform"
+                  animate={
+                    isMobile
+                      ? undefined
+                      : {
+                          x: ['-7%', '7%', '-7%'],
+                          scale: [1.42, 1.45, 1.42],
+                        }
+                  }
+                  transition={
+                    isMobile
+                      ? undefined
+                      : { duration: 12, repeat: Infinity, ease: 'linear' }
+                  }
+                  onContextMenu={(event) => event.preventDefault()}
+                  onDragStart={(event) => event.preventDefault()}
+                >
+                  <Image
+                    src={SUN_IMAGE_SRC}
+                    alt="Sun Texture"
+                    fill
+                    priority
+                    sizes="(min-width: 768px) 20rem, 16rem"
+                    className="object-cover contrast-125 saturate-125 brightness-110"
+                    draggable={false}
+                    referrerPolicy="no-referrer"
+                  />
+                </motion.div>
+              </motion.div>
 
-          {/* THE MOON */}
-          <motion.div
-            style={{ x: moonX, y: moonY, scale: moonScale }}
-            className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full z-30 overflow-hidden shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.9)] shadow-[0_0_20px_rgba(180,220,255,0.22)] bg-black"
-          >
-            {/* The dark side of the moon (Texture) */}
-            <div className="w-full h-full relative overflow-hidden rounded-full">
-              {/* Realistic Moon Image */}
-              <Image 
-                src={MOON_IMAGE_SRC} 
-                alt="Moon Texture"
-                fill
-                priority
-                sizes="(min-width: 768px) 20rem, 16rem"
-                className="object-cover scale-[1.35] grayscale opacity-30 contrast-125"
-                referrerPolicy="no-referrer"
-              />
-              
-              {/* Sphere lighting (dark side / earthshine effect) */}
-              <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(69,146,175,0.15)_0%,rgba(10,20,25,0.85)_60%,rgba(0,0,0,1)_100%)]"></div>
-              
-              {/* Deep inner shadow to enhance 3D sphere effect */}
-              <div className="absolute inset-0 rounded-full shadow-[inset_-20px_-20px_50px_rgba(0,0,0,1),inset_5px_5px_20px_rgba(255,255,255,0.05)]"></div>
+              {/* THE MOON */}
+              <motion.div
+                style={{ x: moonX, y: moonY, scale: moonScale }}
+                className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full z-30 overflow-hidden shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.9)] shadow-[0_0_20px_rgba(180,220,255,0.22)] bg-black"
+              >
+                {/* The dark side of the moon (Texture) */}
+                <div className="w-full h-full relative overflow-hidden rounded-full">
+                  {/* Realistic Moon Image */}
+                  <Image
+                    src={MOON_IMAGE_SRC}
+                    alt="Moon Texture"
+                    fill
+                    priority
+                    sizes="(min-width: 768px) 20rem, 16rem"
+                    className="object-cover scale-[1.35] grayscale opacity-30 contrast-125"
+                    referrerPolicy="no-referrer"
+                  />
+
+                  {/* Sphere lighting (dark side / earthshine effect) */}
+                  <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(69,146,175,0.15)_0%,rgba(10,20,25,0.85)_60%,rgba(0,0,0,1)_100%)]"></div>
+
+                  {/* Deep inner shadow to enhance 3D sphere effect */}
+                  <div className="absolute inset-0 rounded-full shadow-[inset_-20px_-20px_50px_rgba(0,0,0,1),inset_5px_5px_20px_rgba(255,255,255,0.05)]"></div>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    {/* Scroll Indicator */}
+        {/* Scroll Indicator */}
         <motion.div
           style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-400"

@@ -15,16 +15,49 @@
   ],
   "portfolio": [
     {
-      "id": "1",
-      "title": "Proje İsmi 1",
-      "description": "Web Tasarım & Geliştirme",
-      "image": "https://picsum.photos/seed/port1/800/800"
+      "id": "1774569990041",
+      "title": "Aerotek Mühendislik",
+      "description": "Teknik bir yapıyı, akıcı ve keyifli bir deneyimle buluşturduk. Hareketli geçişler ve ince animasyonlar, siteye canlılık kazandırır. Fonksiyon ile estetiğin dengeli birleşimi.",
+      "label": "Web Tasarım",
+      "reviewUrl": "https://aerotekmuhendislik.com/",
+      "image": "/images/projects/aero.jpg",
+      "color": "#f59e0b"
     },
     {
-      "id": "2",
-      "title": "Proje İsmi 2",
-      "description": "Web Tasarım & Geliştirme",
-      "image": "https://picsum.photos/seed/port2/800/800"
+      "id": "1774569945030",
+      "title": "Kolan Online",
+      "description": "Karmaşık sağlık süreçlerini, sade ve anlaşılır bir deneyime dönüştürdük. Kullanıcıyı yormayan akışlar ve net arayüz ile erişilebilirlik ön planda. Fonksiyonel, hızlı ve kullanıcı odaklı bir mobil deneyim.",
+      "label": "UI/UX Tasarım",
+      "reviewUrl": "",
+      "image": "/images/projects/kolan.jpg",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "1774569832516",
+      "title": "Ayse Kuloğlu",
+      "description": "Güven ve samimiyeti merkeze alan, sade ve dengeli bir deneyim tasarladık. İçeriğin ön planda olduğu yapı, kullanıcıyla doğal bir bağ kurar. Dijitalde, sakin ve güven veren bir alan.",
+      "label": "Website Tasarımı",
+      "reviewUrl": "https://www.aysekuloglu.com/",
+      "image": "/images/projects/aysekul.jpg",
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "1774554716067",
+      "title": "BSC HUKUK",
+      "description": "Gereksiz olan her şeyi kaldırarak, hukukun özündeki netliği ve güveni öne çıkaran bir deneyim tasarladık. Sade görünen yapı, akıcı geçişler ve dengeli boşluklarla derin bir odak hissi yaratır. Minimalizm burada bir stil değil, bir duruş.",
+      "label": "Website Tasarımı",
+      "reviewUrl": "https://bsc.agenzion.com/",
+      "image": "/images/projects/bsc.jpg",
+      "color": "#ef4444"
+    },
+    {
+      "id": "1",
+      "title": "Fidanoğlu Elektrik",
+      "description": "Markanın ölçeğini ve gücünü dijitalde hissedilir kılan bir yapı kurduk. Güçlü tipografi ve akıcı deneyimle, kurumsal ağırlığı modern bir anlatımla buluşturduk. Sadece bir web sitesi değil, markanın dijital vitrini.",
+      "label": "Website Tasarımı",
+      "reviewUrl": " https://fidanogluelektrik.com.tr/",
+      "image": "/images/projects/fidan.jpg",
+      "color": "#06b6d4"
     }
   ],
   "blog": [

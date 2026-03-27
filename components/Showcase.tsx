@@ -3,18 +3,9 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'motion/react';
 import Image from 'next/image';
-import { ArrowUpRight, Hexagon } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import PlanetBackdrop, { PlanetSpec } from './PlanetBackdrop';
-
-interface Project {
-  id: number;
-  title: string;
-  category: string;
-  description: string;
-  img: string;
-  color: string;
-  tags: readonly string[];
-}
+import type { ShowcaseProject } from '@/lib/content';
 
 const backgroundStars = Array.from({ length: 84 }, (_, i) => ({
   id: i,
@@ -111,7 +102,7 @@ const StarryBackground = () => {
       <style>{`
         @keyframes twinkle {
           0%, 100% { opacity: 0.1; transform: scale(0.8); }
-          50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+          50% { opacity: 0.8; transform: scale(1.2); }
         }
         @keyframes shooting-star {
           0% { transform: rotate(215deg) translateX(0); opacity: 1; }
@@ -130,9 +121,12 @@ const StarryBackground = () => {
 const Showcase: React.FC<{
   heading: string;
   voyagerLabel: string;
-  projects: readonly Project[];
-}> = ({ heading, voyagerLabel, projects }) => {
+  reviewLabel: string;
+  emptyLabel: string;
+  projects: readonly ShowcaseProject[];
+}> = ({ heading, voyagerLabel, reviewLabel, emptyLabel, projects }) => {
   const container = useRef<HTMLDivElement>(null);
+  const hasProjects = projects.length > 0;
 
   // Track scroll of the entire section
   const { scrollYProgress } = useScroll({
@@ -143,15 +137,40 @@ const Showcase: React.FC<{
   // Dynamic Background Glow Color - Synchronized with card transitions
   const glowColor = useTransform(
     scrollYProgress,
-    projects.flatMap((_, i) => {
-      const start = i / projects.length;
-      const end = (i + 1) / projects.length;
-      // Create a "plateau" for each color so it stays solid while the card is active
-      // and transitions quickly between cards
-      return [start + 0.02, end - 0.02];
-    }),
-    projects.flatMap((p) => [p.color, p.color])
+    hasProjects
+      ? projects.flatMap((_, i) => {
+          const start = i / projects.length;
+          const end = (i + 1) / projects.length;
+          // Create a "plateau" for each color so it stays solid while the card is active
+          // and transitions quickly between cards
+          return [start + 0.02, end - 0.02];
+        })
+      : [0, 1],
+    hasProjects ? projects.flatMap((p) => [p.color, p.color]) : ['#06b6d4', '#06b6d4']
   );
+
+  if (!hasProjects) {
+    return (
+      <div ref={container} className="relative bg-gradient-to-b from-[#020205] via-[#0a0a1a] to-[#020205] w-full">
+        <PlanetBackdrop planets={showcasePlanets} />
+        <StarryBackground />
+        <div className="relative z-30 px-6 py-32 text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-6xl font-bold brand-font text-white mb-6 tracking-wider drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+          >
+            {heading}
+          </motion.h2>
+          <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto mb-10"></div>
+          <p className="mx-auto max-w-xl text-sm md:text-lg text-white/55 logo-font">
+            {emptyLabel}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={container} className="relative bg-gradient-to-b from-[#020205] via-[#0a0a1a] to-[#020205] w-full">
@@ -177,7 +196,7 @@ const Showcase: React.FC<{
         {/* Dynamic Glow Background */}
         <div
           aria-hidden="true"
-          className="sticky top-0 flex h-screen w-full items-center justify-center pointer-events-none"
+          className="pointer-events-none sticky top-0 hidden h-screen w-full items-center justify-center md:flex"
           style={{
             maskImage: glowFadeMask,
             WebkitMaskImage: glowFadeMask,
@@ -185,7 +204,7 @@ const Showcase: React.FC<{
         >
           <motion.div
             style={{ backgroundColor: glowColor }}
-            className="h-[72vw] w-[72vw] max-h-[1200px] max-w-[1200px] rounded-full blur-[190px] opacity-20"
+            className="h-[72vw] w-[72vw] max-h-[1200px] max-w-[1200px] rounded-full blur-[90px] opacity-[0.28]"
           />
         </div>
 
@@ -203,6 +222,7 @@ const Showcase: React.FC<{
                 progress={scrollYProgress}
                 range={range}
                 targetScale={targetScale}
+                reviewLabel={reviewLabel}
               />
             );
           })}
@@ -246,27 +266,31 @@ const Showcase: React.FC<{
   );
 };
 
-interface CardProps extends Project {
+interface CardProps extends ShowcaseProject {
   i: number;
   progress: MotionValue<number>;
   range: number[];
   targetScale: number;
+  reviewLabel: string;
 }
 
 const Card: React.FC<CardProps> = ({
   i,
   title,
-  category,
+  label,
   description,
   img,
   color,
-  tags,
+  reviewUrl,
   progress,
   range,
   targetScale,
+  reviewLabel,
 }) => {
   const container = useRef(null);
   const scale = useTransform(progress, range, [1, targetScale]);
+  const hasReviewUrl = Boolean(reviewUrl?.trim());
+  const imageSrc = img || '/images/project-placeholder.jpg';
 
   return (
     <div
@@ -278,7 +302,7 @@ const Card: React.FC<CardProps> = ({
           scale,
           marginTop: `calc(5vh + ${i * 20}px)`,
         }}
-        className="relative w-full max-w-6xl aspect-square md:aspect-[2/1] rounded-3xl border border-white/10 bg-neutral-900/60 backdrop-blur-xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2"
+        className="relative w-full max-w-6xl aspect-square md:aspect-[2/1] rounded-3xl border border-white/10 bg-neutral-950 md:bg-neutral-900/60 md:backdrop-blur-sm shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2"
       >
         {/* Left Column: Info */}
         <div className="p-8 md:p-12 flex flex-col justify-between h-full relative z-10">
@@ -286,7 +310,7 @@ const Card: React.FC<CardProps> = ({
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-3">
               <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/80 logo-font">
-                {category}
+                {label}
               </span>
             </div>
           </div>
@@ -318,22 +342,37 @@ const Card: React.FC<CardProps> = ({
 
           {/* Footer / Tags */}
           <div className="flex flex-wrap gap-2 md:gap-4 mt-8">
-            <div className="ml-auto flex items-center gap-2 text-white/50 text-xs uppercase tracking-widest group cursor-pointer hover:text-white transition-colors">
-              Projeyi İncele{' '}
-              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-            </div>
+            {hasReviewUrl ? (
+              <a
+                href={reviewUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="ml-auto flex items-center gap-2 text-white/50 text-xs uppercase tracking-widest group hover:text-white transition-colors"
+              >
+                {reviewLabel}
+                <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="ml-auto flex items-center gap-2 text-white/25 text-xs uppercase tracking-widest cursor-not-allowed"
+              >
+                {reviewLabel}
+                <ArrowUpRight className="w-4 h-4" />
+              </span>
+            )}
           </div>
         </div>
 
         {/* Right Column: Visual */}
         <div className="relative h-full w-full overflow-hidden rounded-r-3xl md:rounded-l-none rounded-b-3xl md:rounded-br-3xl hidden md:block">
           <div className="absolute inset-0 w-full h-full">
-            <Image 
-              src={img} 
-              alt={title} 
-              fill 
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover"
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageSrc}
+              alt={title}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
             />
             {/* Overlay Gradient */}
@@ -341,22 +380,16 @@ const Card: React.FC<CardProps> = ({
             <div className="absolute inset-0 bg-black/20"></div>
           </div>
 
-          {/* Tech Decoration */}
-          <div className="absolute bottom-6 right-6 flex gap-2">
-            <div className="w-12 h-12 rounded-full backdrop-blur-md bg-white/5 border border-white/10 flex items-center justify-center text-white/70">
-              <Hexagon className="w-5 h-5" />
-            </div>
-          </div>
         </div>
 
         {/* Mobile Image Overlay (Subtle background) */}
         <div className="md:hidden absolute inset-0 -z-10 opacity-30">
-          <Image 
-            src={img} 
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageSrc}
             alt={title}
-            fill 
-            sizes="100vw"
-            className="object-cover"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            className="h-full w-full object-cover"
             referrerPolicy="no-referrer"
           />
         </div>

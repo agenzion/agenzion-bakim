@@ -2,6 +2,20 @@ import type { AppData, ContentItem } from '@/lib/db';
 import { getDb } from '@/lib/db';
 import { type Locale, slugify } from '@/lib/i18n';
 
+export interface ShowcaseProject {
+  id: string;
+  title: string;
+  label: string;
+  description: string;
+  img: string;
+  color: string;
+  reviewUrl?: string;
+}
+
+type LocalizedBlogPost = ContentItem & { slug: string };
+
+const showcaseColorPalette = ['#06b6d4', '#ef4444', '#8b5cf6', '#3b82f6', '#f59e0b'];
+
 const blogTranslations: Record<
   string,
   Partial<Record<Locale, Partial<ContentItem>>>
@@ -39,7 +53,33 @@ function ensureSlug(value?: string, fallback?: string) {
   return slugify(fallback || 'post');
 }
 
-function localizeBlogPost(post: ContentItem, locale: Locale): ContentItem {
+function getDefaultProjectLabel(locale: Locale) {
+  return locale === 'en' ? 'Project' : 'Proje';
+}
+
+function normalizeShowcaseProject(
+  project: Partial<ContentItem>,
+  index: number,
+  locale: Locale
+): ShowcaseProject {
+  const title = project.title?.trim() || `${getDefaultProjectLabel(locale)} ${index + 1}`;
+  const label = project.label?.trim() || project.category?.trim() || getDefaultProjectLabel(locale);
+  const description = project.description?.trim() || '';
+  const image = project.image?.trim() || '/images/project-placeholder.jpg';
+  const reviewUrl = project.reviewUrl?.trim() || undefined;
+
+  return {
+    id: String(project.id || index + 1),
+    title,
+    label,
+    description,
+    img: image,
+    color: project.color?.trim() || showcaseColorPalette[index % showcaseColorPalette.length],
+    reviewUrl,
+  };
+}
+
+function localizeBlogPost(post: ContentItem, locale: Locale): LocalizedBlogPost {
   const translation = blogTranslations[post.id]?.[locale];
 
   if (!translation) {
@@ -65,6 +105,14 @@ export async function getPublicContent(locale: Locale): Promise<AppData> {
   };
 }
 
+export async function getHomepageShowcaseProjects(locale: Locale): Promise<ShowcaseProject[]> {
+  const db = await getDb();
+
+  return db.portfolio.map((project, index) =>
+    normalizeShowcaseProject(project, index, locale)
+  );
+}
+
 export async function getLocalizedBlogEntry(locale: Locale, slug: string) {
   const db = await getDb();
   const basePost = db.blog.find((post) => localizeBlogPost(post, locale).slug === slug);
@@ -84,7 +132,7 @@ export async function getLocalizedBlogEntry(locale: Locale, slug: string) {
 
 export async function getLocalizedBlogPosts(locale: Locale) {
   const db = await getPublicContent(locale);
-  return db.blog.filter((post) => post.slug);
+  return db.blog.filter((post): post is LocalizedBlogPost => Boolean(post.slug));
 }
 
 export async function getLocalizedBlogPostBySlug(locale: Locale, slug: string) {

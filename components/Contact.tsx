@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import { ArrowRight, Check, Loader2, Mail, MapPin, Navigation, Phone, X } from 'lucide-react';
 import ShinyButton from './ShinyButton';
+import useIsMobile from '@/lib/useIsMobile';
 
 interface ContactProps {
   showForm?: boolean;
@@ -36,48 +37,60 @@ interface ContactProps {
   };
 }
 
-const EARTH_IMAGE_SRC = 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Earth_Western_Hemisphere.jpg';
+const EARTH_IMAGE_SRC = '/images/space/earth.jpg';
 
 const EarthOrb = ({
   className = 'w-[220px] sm:w-[260px] lg:w-[320px]',
 }: {
   className?: string;
-}) => (
-  <div
-    className={`relative mx-auto aspect-square pointer-events-none select-none ${className}`}
-    onContextMenu={(event) => event.preventDefault()}
-    onDragStart={(event) => event.preventDefault()}
-  >
-    <div className="absolute inset-[-18%] rounded-full bg-[#4592AF]/18 blur-[70px]" />
-    <div className="absolute inset-0 overflow-hidden rounded-full">
-      <motion.div
-        className="absolute inset-[-5%]"
-        animate={{
-          x: ['-2%', '3%', '-2%'],
-          scale: [1.16, 1.175, 1.16],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      >
-        <Image
-          src={EARTH_IMAGE_SRC}
-          alt="Earth"
-          fill
-          sizes="(min-width: 1024px) 320px, (min-width: 640px) 260px, 220px"
-          className="object-cover"
-          draggable={false}
-          style={{
-            filter: 'brightness(0.88) saturate(1.05) contrast(1.08)',
-          }}
-          referrerPolicy="no-referrer"
-        />
-      </motion.div>
+}) => {
+  const isMobile = useIsMobile();
+
+  return (
+    <div
+      className={`relative mx-auto aspect-square pointer-events-none select-none ${className}`}
+      onContextMenu={(event) => event.preventDefault()}
+      onDragStart={(event) => event.preventDefault()}
+    >
+      <div className="absolute inset-[-18%] rounded-full bg-[#4592AF]/18 blur-[70px]" />
+      <div className="absolute inset-0 overflow-hidden rounded-full">
+        <motion.div
+          className="absolute inset-[-5%]"
+          initial={{ x: '-2%', scale: 1.16 }}
+          animate={
+            isMobile
+              ? undefined
+              : {
+                  x: ['-2%', '3%', '-2%'],
+                  scale: [1.16, 1.175, 1.16],
+                }
+          }
+          transition={
+            isMobile
+              ? undefined
+              : {
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }
+          }
+        >
+          <Image
+            src={EARTH_IMAGE_SRC}
+            alt="Earth"
+            fill
+            sizes="(min-width: 1024px) 320px, (min-width: 640px) 260px, 220px"
+            className="object-cover"
+            draggable={false}
+            style={{
+              filter: 'brightness(0.88) saturate(1.05) contrast(1.08)',
+            }}
+          />
+        </motion.div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const RevealLine = ({
   delay = 0,

@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     'web geliştirme',
     'performans optimizasyonu',
     'seo',
-    'creative studio',
-    'istanbul web studio',
+    'yaratıcı web stüdyosu',
+    'İstanbul web stüdyosu',
     'next.js',
   ],
   alternates: {

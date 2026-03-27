@@ -77,7 +77,7 @@ const CosmicBackground = ({ planets = [], masked = false }: CosmicBackgroundProp
         <style>{`
           @keyframes twinkle {
             0%, 100% { opacity: 0.1; transform: scale(0.8); }
-            50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+            50% { opacity: 0.8; transform: scale(1.2); }
           }
           @keyframes shooting-star {
             0% { transform: rotate(215deg) translateX(0); opacity: 1; }

@@ -66,69 +66,36 @@ const PANORAMA_BASE =
 const PANORAMA_GLOWS: GlowSpec[] = [
   {
     id: 'glow-1',
-    top: '-10%',
+    top: '-8%',
     left: '3%',
-    width: '48vw',
-    height: '48vw',
+    width: '52vw',
+    height: '52vw',
     background:
-      'radial-gradient(circle, rgba(84, 169, 220, 0.28) 0%, rgba(84, 169, 220, 0.06) 42%, transparent 74%)',
+      'radial-gradient(circle, rgba(84, 169, 220, 0.30) 0%, rgba(84, 169, 220, 0.07) 44%, transparent 74%)',
     opacity: 0.72,
-    blur: '118px',
+    blur: '56px',
   },
   {
     id: 'glow-2',
-    bottom: '-18%',
-    left: '16%',
-    width: '42vw',
-    height: '42vw',
-    background:
-      'radial-gradient(circle, rgba(84, 104, 196, 0.18) 0%, rgba(84, 104, 196, 0.04) 46%, transparent 76%)',
-    opacity: 0.78,
-    blur: '122px',
-  },
-  {
-    id: 'glow-3',
-    top: '2%',
-    left: '33%',
-    width: '36vw',
-    height: '36vw',
-    background:
-      'radial-gradient(circle, rgba(233, 192, 146, 0.14) 0%, rgba(233, 192, 146, 0.03) 48%, transparent 76%)',
-    opacity: 0.82,
-    blur: '94px',
-  },
-  {
-    id: 'glow-4',
-    top: '-12%',
-    left: '47%',
-    width: '54vw',
-    height: '54vw',
-    background:
-      'radial-gradient(circle, rgba(74, 156, 188, 0.22) 0%, rgba(74, 156, 188, 0.05) 42%, transparent 76%)',
-    opacity: 0.8,
-    blur: '124px',
-  },
-  {
-    id: 'glow-5',
-    bottom: '-16%',
-    left: '64%',
-    width: '40vw',
-    height: '40vw',
-    background:
-      'radial-gradient(circle, rgba(89, 104, 198, 0.16) 0%, rgba(89, 104, 198, 0.04) 46%, transparent 76%)',
-    opacity: 0.76,
-    blur: '118px',
-  },
-  {
-    id: 'glow-6',
     top: '-8%',
-    left: '79%',
+    left: '37%',
     width: '46vw',
     height: '46vw',
     background:
-      'radial-gradient(circle, rgba(84, 173, 226, 0.28) 0%, rgba(84, 173, 226, 0.06) 42%, transparent 74%)',
-    opacity: 0.82,
-    blur: '120px',
+      'radial-gradient(circle, rgba(233, 192, 146, 0.18) 0%, rgba(86, 163, 200, 0.10) 44%, transparent 74%)',
+    opacity: 0.76,
+    blur: '52px',
+  },
+  {
+    id: 'glow-3',
+    top: '-8%',
+    left: '72%',
+    width: '54vw',
+    height: '54vw',
+    background:
+      'radial-gradient(circle, rgba(84, 173, 226, 0.28) 0%, rgba(89, 104, 198, 0.08) 44%, transparent 74%)',
+    opacity: 0.78,
+    blur: '58px',
   },
 ];
 
@@ -215,7 +182,7 @@ const createPanoramaStars = (seed: number, count: number, clusters: ClusterSpec[
   });
 };
 
-const PANORAMA_STARS = createPanoramaStars(91024, 252, [
+const PANORAMA_STARS = createPanoramaStars(91024, 90, [
   { x: 8, y: 20, spreadX: 18, spreadY: 20, weight: 2.6 },
   { x: 19, y: 68, spreadX: 18, spreadY: 18, weight: 1.8 },
   { x: 34, y: 26, spreadX: 22, spreadY: 18, weight: 1.8 },
