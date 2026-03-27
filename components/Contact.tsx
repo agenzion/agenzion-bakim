@@ -287,13 +287,15 @@ const Contact: React.FC<ContactProps> = ({
                       href="https://www.google.com/maps/search/?api=1&query=Atak%C3%B6y%207-8-9-10.%20K%C4%B1s%C4%B1m%20Mah.%20%C3%87oban%C3%A7e%C5%9Fme%20E-5%2C%20Yan%20Yol%20No%3A%2014%2FA%2C%2034158%20Bak%C4%B1rk%C3%B6y%2F%C4%B0stanbul%20%2F%20%C4%B0K%C3%9C%20TEKMER"
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-block transition-colors hover:text-[#4592AF]"
+                      className="block max-w-full transition-colors hover:text-[#4592AF]"
                     >
-                      <p className="brand-font text-lg font-bold text-white">
+                      <p className="brand-font max-w-full break-words text-lg font-bold text-white">
                         {copy.addressLine1}
                       </p>
                     </a>
-                    <p className="text-sm font-mono text-white/48">{copy.addressLine2}</p>
+                    <p className="max-w-full break-words text-sm font-mono text-white/48">
+                      {copy.addressLine2}
+                    </p>
                   </div>
                   <RevealLine delay={0.9} className="w-full" />
                 </div>

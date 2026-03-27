@@ -72,9 +72,9 @@ const Navbar: React.FC<
         borderBottom: `1px solid`,
         borderBottomColor: borderOpacity,
       }}
-      className="fixed top-0 left-0 z-50 flex w-full items-center justify-between px-8 text-white mix-blend-difference transition-colors duration-300"
+      className="fixed top-0 left-0 z-50 flex w-full items-center justify-between px-5 text-white mix-blend-difference transition-colors duration-300 md:px-8"
     >
-        <Link href={getLocalizedPath(locale, 'home')} className="block">
+        <Link href={getLocalizedPath(locale, 'home')} className="block shrink-0">
           <BrandLogo
             darkOpacity={darkLogoOpacity}
             lightOpacity={lightLogoOpacity}
@@ -106,7 +106,7 @@ const Navbar: React.FC<
           />
           <LanguageSwitch locale={locale} href={alternatePath} dark={isDarkBackground} />
         </div>
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex shrink-0 items-center gap-2 md:hidden">
           <LanguageSwitch
             locale={locale}
             href={alternatePath}

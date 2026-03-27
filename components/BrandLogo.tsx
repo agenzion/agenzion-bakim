@@ -24,7 +24,7 @@ export default function BrandLogo({
 }: BrandLogoProps) {
   return (
     <div
-      className={`relative h-8 w-[11.5rem] shrink-0 select-none md:h-9 md:w-[13rem] ${className}`}
+      className={`relative h-7 w-[8.75rem] shrink-0 select-none md:h-9 md:w-[13rem] ${className}`}
       aria-label="Agenzion Web Studio"
     >
       <motion.div style={{ opacity: darkOpacity }} className="absolute inset-0">

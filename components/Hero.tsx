@@ -52,9 +52,21 @@ const Hero: React.FC<{
   const text2Y = useTransform(scrollYProgress, [TEXT_FADE_START, TEXT_FADE_END], [50, 0]);
 
   // --- CELESTIAL ANIMATIONS ---
-  const moonX = useTransform(scrollYProgress, [0, END_MOVEMENT], ['40vw', '0vw']);
-  const moonY = useTransform(scrollYProgress, [0, END_MOVEMENT], ['20vh', '0vh']);
-  const moonScale = useTransform(scrollYProgress, [0, END_MOVEMENT], [0.8, 1.01]);
+  const moonX = useTransform(
+    scrollYProgress,
+    [0, END_MOVEMENT],
+    [isMobile ? '28vw' : '40vw', '0vw']
+  );
+  const moonY = useTransform(
+    scrollYProgress,
+    [0, END_MOVEMENT],
+    [isMobile ? '12vh' : '20vh', '0vh']
+  );
+  const moonScale = useTransform(
+    scrollYProgress,
+    [0, END_MOVEMENT],
+    [isMobile ? 0.72 : 0.8, 1.01]
+  );
   const SUN_IMAGE_SRC = '/images/space/sun.jpg';
   const MOON_IMAGE_SRC = '/images/space/moon.jpg';
 
@@ -82,8 +94,8 @@ const Hero: React.FC<{
   return (
     <div ref={containerRef} className="relative h-[450vh]">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full p-8 flex justify-between items-center z-50">
-        <Link href={getLocalizedPath(locale, 'home')} className="block">
+      <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between p-5 md:p-8">
+        <Link href={getLocalizedPath(locale, 'home')} className="block shrink-0">
           <BrandLogo
             darkOpacity={darkLogoOpacity}
             lightOpacity={lightLogoOpacity}
@@ -107,7 +119,7 @@ const Hero: React.FC<{
           />
           <LanguageSwitch locale={locale} href={alternatePath} color={navColor} />
         </div>
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex shrink-0 items-center gap-2 md:hidden">
           <LanguageSwitch locale={locale} href={alternatePath} color={navColor} className="text-sm" />
           <MobileMenu color={navColor} locale={locale} copy={navigation} />
         </div>
@@ -118,16 +130,16 @@ const Hero: React.FC<{
         style={{ backgroundColor }}
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center z-10 transition-colors duration-0"
       >
-        <div className="max-w-7xl mx-auto w-full px-8 md:px-24 flex flex-col md:flex-row items-center justify-center md:justify-between">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-10 px-5 pt-24 md:flex-row md:justify-between md:gap-0 md:px-24 md:pt-0">
           {/* Text Content */}
-          <div className="absolute md:relative z-40 w-full md:w-1/2 flex items-center justify-center md:justify-start pointer-events-none">
-            <div className="relative w-full h-[200px] md:h-[400px] flex items-center justify-center md:justify-start">
+          <div className="relative z-40 flex w-full items-center justify-center pointer-events-none md:w-1/2 md:justify-start">
+            <div className="relative flex h-[120px] w-full items-center justify-center md:h-[400px] md:justify-start">
               {/* --- TEXT PHASE 1 --- */}
               <motion.div
                 style={{ opacity: text1Opacity, y: text1Y, scale: text1Scale }}
-                className="absolute z-40 text-center md:text-left w-full"
+                className="absolute z-40 w-full text-center md:text-left"
               >
-                <h1 className="text-5xl md:text-8xl font-extrabold text-gray-900 tracking-tighter logo-font break-words">
+                <h1 className="mx-auto max-w-[9ch] text-[clamp(3.2rem,15vw,5rem)] font-extrabold tracking-tighter text-gray-900 md:mx-0 md:max-w-none md:text-8xl">
                   {copy.primaryTitle}
                 </h1>
               </motion.div>
@@ -135,10 +147,10 @@ const Hero: React.FC<{
               {/* --- TEXT PHASE 2 (TOTALITY) --- */}
               <motion.div
                 style={{ opacity: text2Opacity, y: text2Y }}
-                className="absolute z-40 text-center md:text-left mix-blend-screen w-full"
+                className="absolute z-40 w-full text-center mix-blend-screen md:text-left"
               >
                 <h1
-                  className="text-4xl md:text-7xl font-extrabold text-white tracking-tight logo-font"
+                  className="mx-auto max-w-[10ch] text-[clamp(2.5rem,12vw,4rem)] font-extrabold tracking-tight text-white md:mx-0 md:max-w-none md:text-7xl"
                   style={{ textShadow: '0 0 30px rgba(255,255,255,0.5)' }}
                 >
                   {copy.secondaryTitle}
@@ -148,15 +160,15 @@ const Hero: React.FC<{
           </div>
 
           {/* Celestial System */}
-          <div className="relative w-full md:w-1/2 flex items-center justify-center md:justify-end">
-            <div className="relative w-[300px] h-[300px] md:w-[600px] md:h-[600px] flex items-center justify-center">
+          <div className="relative flex w-full items-center justify-center md:w-1/2 md:justify-end">
+            <div className="relative flex h-[260px] w-[260px] items-center justify-center md:h-[600px] md:w-[600px]">
               {/* THE SUN */}
               <motion.div
                 style={{
                   boxShadow: sunShadow,
                   backgroundColor: sunColor,
                 }}
-                className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full z-20 overflow-hidden"
+                className="absolute z-20 h-56 w-56 overflow-hidden rounded-full md:h-80 md:w-80"
               >
                 {/* Sun Surface Details */}
                 <motion.div
@@ -195,7 +207,7 @@ const Hero: React.FC<{
               {/* THE MOON */}
               <motion.div
                 style={{ x: moonX, y: moonY, scale: moonScale }}
-                className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full z-30 overflow-hidden shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.9)] shadow-[0_0_20px_rgba(180,220,255,0.22)] bg-black"
+                className="absolute z-30 h-56 w-56 overflow-hidden rounded-full bg-black shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.9)] shadow-[0_0_20px_rgba(180,220,255,0.22)] md:h-80 md:w-80"
               >
                 {/* The dark side of the moon (Texture) */}
                 <div className="w-full h-full relative overflow-hidden rounded-full">

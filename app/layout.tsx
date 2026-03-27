@@ -69,7 +69,6 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   const organizationJsonLd = {
-    '@context': 'https://schema.org',
     '@type': 'Organization',
     name: siteConfig.name,
     url: siteConfig.url,
@@ -98,7 +97,6 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   };
 
   const websiteJsonLd = {
-    '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: siteConfig.name,
     url: siteConfig.url,
@@ -110,13 +108,18 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     },
   };
 
+  const rootJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [organizationJsonLd, websiteJsonLd],
+  };
+
   return (
     <html lang="tr" className={`${outfit.variable}`}>
       <body suppressHydrationWarning className="relative isolate font-sans antialiased bg-[#F5F5F3] selection:bg-black selection:text-white">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
+            __html: JSON.stringify(rootJsonLd),
           }}
         />
         <SpaceRouteBackground />
