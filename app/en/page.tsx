@@ -10,22 +10,30 @@ import Services from '@/components/Services';
 import Showcase from '@/components/Showcase';
 import { getHomepageShowcaseProjects } from '@/lib/content';
 import { buildLocalizedMetadata, buildWebPageJsonLd } from '@/lib/seo';
+import { getSiteSettings } from '@/lib/site';
 import { getLocaleContent } from '@/lib/site-content';
 
-const content = getLocaleContent('en');
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = buildLocalizedMetadata({
-  locale: 'en',
-  title: content.meta.homeTitle,
-  description: content.meta.homeDescription,
-  currentPath: '/en',
-  trPath: '/',
-  enPath: '/en',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getLocaleContent('en');
+
+  return buildLocalizedMetadata({
+    locale: 'en',
+    title: content.meta.homeTitle,
+    description: content.meta.homeDescription,
+    currentPath: '/en',
+    trPath: '/',
+    enPath: '/en',
+  });
+}
 
 export default async function EnglishHome() {
-  const projects = await getHomepageShowcaseProjects('en');
+  const [content, projects, settings] = await Promise.all([
+    getLocaleContent('en'),
+    getHomepageShowcaseProjects('en'),
+    getSiteSettings(),
+  ]);
   const jsonLd = buildWebPageJsonLd({
     locale: 'en',
     title: content.meta.homeTitle,
@@ -69,7 +77,7 @@ export default async function EnglishHome() {
         />
         <CodeEditor copy={content.codeEditor} />
         <Contact copy={content.contact} showMap showMapContactLinks />
-        <Footer copy={content.footer} />
+        <Footer copy={content.footer} socialLinks={settings.socialLinks} />
       </div>
     </main>
   );

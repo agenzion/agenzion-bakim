@@ -10,18 +10,19 @@ import {
 } from '@/lib/content';
 import { getLocalizedPath } from '@/lib/i18n';
 import { buildLocalizedMetadata } from '@/lib/seo';
-import { absoluteUrl } from '@/lib/site';
+import { absoluteUrl, getSiteSettings } from '@/lib/site';
 import { getLocaleContent } from '@/lib/site-content';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-const content = getLocaleContent('tr');
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const entry = await getLocalizedBlogEntry('tr', slug);
+  const [content, entry] = await Promise.all([
+    getLocaleContent('tr'),
+    getLocalizedBlogEntry('tr', slug),
+  ]);
   const post = entry?.localizations.tr || null;
 
   if (!post) {
@@ -52,7 +53,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const entry = await getLocalizedBlogEntry('tr', slug);
+  const [content, entry, settings] = await Promise.all([
+    getLocaleContent('tr'),
+    getLocalizedBlogEntry('tr', slug),
+    getSiteSettings(),
+  ]);
   const post = entry?.localizations.tr || null;
 
   if (!post) {
@@ -134,7 +139,7 @@ export default async function BlogPostPage({ params }: Props) {
           copy={content.blog}
           nextPostTitle={nextPostTitle}
         />
-        <Footer copy={content.footer} />
+        <Footer copy={content.footer} socialLinks={settings.socialLinks} />
       </div>
     </main>
   );

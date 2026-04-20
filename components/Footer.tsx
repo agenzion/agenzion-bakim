@@ -1,35 +1,46 @@
 import React from 'react';
-import { Building2, Instagram, Linkedin } from 'lucide-react';
+import { Building2, ExternalLink, Instagram, Linkedin, type LucideIcon } from 'lucide-react';
+import type { FooterSocialLink } from '@/lib/site';
 
-const socialLinks = [
+const defaultSocialLinks: FooterSocialLink[] = [
   {
     title: 'Linkedin',
     href: 'https://www.linkedin.com/company/agenzion',
-    icon: Linkedin,
     gradientFrom: '#5cb8ff',
     gradientTo: '#0a66c2',
   },
   {
     title: 'Instagram',
     href: 'https://www.instagram.com/agenzion',
-    icon: Instagram,
     gradientFrom: '#f9ce34',
     gradientTo: '#c13584',
   },
   {
     title: 'Napolion',
     href: 'https://napolion.com.tr',
-    icon: Building2,
     gradientFrom: '#7cf7c3',
     gradientTo: '#0f9d8a',
   },
-] as const;
+];
+
+const iconByTitle: Record<string, LucideIcon> = {
+  linkedin: Linkedin,
+  instagram: Instagram,
+  napolion: Building2,
+};
+
+function getSocialIcon(title: string) {
+  return iconByTitle[title.toLowerCase()] || ExternalLink;
+}
 
 const Footer: React.FC<{
   copy: {
     copyrightName: string;
   };
-}> = ({ copy }) => {
+  socialLinks?: FooterSocialLink[];
+}> = ({ copy, socialLinks = defaultSocialLinks }) => {
+  const links = socialLinks.length ? socialLinks : defaultSocialLinks;
+
   return (
     <footer className="border-t border-white/5 bg-transparent px-6 py-8 text-white">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 md:flex-row">
@@ -38,8 +49,9 @@ const Footer: React.FC<{
         </p>
 
         <ul className="flex flex-wrap items-center justify-center gap-2.5">
-          {socialLinks.map(({ title, href, icon: Icon, gradientFrom, gradientTo }) => {
+          {links.map(({ title, href, gradientFrom = '#7cf7c3', gradientTo = '#0f9d8a' }) => {
             const isExternal = href.startsWith('http');
+            const Icon = getSocialIcon(title);
 
             return (
               <li key={title}>

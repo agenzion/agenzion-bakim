@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import type { ContentItem } from '@/lib/db';
 import { getSafeImageSrc, isRemoteImageSrc } from '@/lib/image';
 import { getLocalizedBlogPostPath, type Locale } from '@/lib/i18n';
+import type { FooterSocialLink } from '@/lib/site';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import type { NavigationCopy } from '@/components/navigation';
@@ -16,6 +17,7 @@ export default function BlogIndexPage({
   alternatePath,
   navigation,
   footer,
+  socialLinks,
   blogCopy,
   blog,
 }: {
@@ -25,6 +27,7 @@ export default function BlogIndexPage({
   footer: {
     copyrightName: string;
   };
+  socialLinks?: FooterSocialLink[];
   blogCopy: {
     title: string;
     description: string;
@@ -124,7 +127,7 @@ export default function BlogIndexPage({
           })}
         </div>
       </div>
-      <Footer copy={footer} />
+      <Footer copy={footer} socialLinks={socialLinks} />
     </main>
   );
 }

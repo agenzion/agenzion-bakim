@@ -1,6 +1,7 @@
 import type { AppData, ContentItem } from '@/lib/db';
 import { getDb } from '@/lib/db';
 import { type Locale, slugify } from '@/lib/i18n';
+import { sanityFetch } from '@/lib/sanity';
 
 export interface ShowcaseProject {
   id: string;
@@ -13,8 +14,109 @@ export interface ShowcaseProject {
 }
 
 type LocalizedBlogPost = ContentItem & { slug: string };
+type LocalizedBlogEntry = {
+  base: ContentItem;
+  localizations: Record<Locale, LocalizedBlogPost>;
+};
 
 const showcaseColorPalette = ['#06b6d4', '#ef4444', '#8b5cf6', '#3b82f6', '#f59e0b'];
+
+const PUBLIC_CONTENT_QUERY = /* groq */ `
+{
+  "concepts": [],
+  "portfolio": *[_type == "project" && enabled != false] | order(order asc, _createdAt asc) {
+    "id": coalesce(id, _id),
+    "title": select($locale == "en" => coalesce(title.en, title.tr), coalesce(title.tr, title.en)),
+    "description": select(
+      $locale == "en" => coalesce(description.en, description.tr),
+      coalesce(description.tr, description.en)
+    ),
+    "label": select(
+      $locale == "en" => coalesce(label.en, category.en, label.tr, category.tr),
+      coalesce(label.tr, category.tr, label.en, category.en)
+    ),
+    "category": select(
+      $locale == "en" => coalesce(category.en, label.en, category.tr, label.tr),
+      coalesce(category.tr, label.tr, category.en, label.en)
+    ),
+    "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
+    reviewUrl,
+    "color": coalesce(color, "#06B6D4"),
+    "tags": coalesce(tags, [])
+  },
+  "blog": *[_type == "blogPost" && enabled != false] | order(publishedAt desc, order asc, _createdAt desc) {
+    "id": coalesce(id, _id),
+    "slug": select($locale == "en" => coalesce(slug.en, slug.tr), coalesce(slug.tr, slug.en)),
+    "title": select($locale == "en" => coalesce(title.en, title.tr), coalesce(title.tr, title.en)),
+    "description": select(
+      $locale == "en" => coalesce(description.en, description.tr),
+      coalesce(description.tr, description.en)
+    ),
+    "content": select(
+      $locale == "en" => coalesce(bodyHtml.en, bodyHtml.tr),
+      coalesce(bodyHtml.tr, bodyHtml.en)
+    ),
+    "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
+    "date": publishedAt,
+    "category": select($locale == "en" => coalesce(category.en, category.tr), coalesce(category.tr, category.en)),
+    author {
+      name,
+      "role": select($locale == "en" => coalesce(role.en, role.tr), coalesce(role.tr, role.en)),
+      "image": coalesce(image.asset->url, imagePath, "/images/logo-koyu.png")
+    },
+    tags,
+    "readingTime": select(
+      $locale == "en" => coalesce(readingTime.en, readingTime.tr),
+      coalesce(readingTime.tr, readingTime.en)
+    )
+  }
+}
+`;
+
+const BLOG_ENTRY_QUERY = /* groq */ `
+*[
+  _type == "blogPost" &&
+  enabled != false &&
+  select($locale == "en" => coalesce(slug.en, slug.tr), coalesce(slug.tr, slug.en)) == $slug
+][0]{
+  "localizations": {
+    "tr": {
+      "id": coalesce(id, _id),
+      "slug": coalesce(slug.tr, slug.en),
+      "title": coalesce(title.tr, title.en),
+      "description": coalesce(description.tr, description.en),
+      "content": coalesce(bodyHtml.tr, bodyHtml.en),
+      "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
+      "date": publishedAt,
+      "category": coalesce(category.tr, category.en),
+      author {
+        name,
+        "role": coalesce(role.tr, role.en),
+        "image": coalesce(image.asset->url, imagePath, "/images/logo-koyu.png")
+      },
+      tags,
+      "readingTime": coalesce(readingTime.tr, readingTime.en)
+    },
+    "en": {
+      "id": coalesce(id, _id),
+      "slug": coalesce(slug.en, slug.tr),
+      "title": coalesce(title.en, title.tr),
+      "description": coalesce(description.en, description.tr),
+      "content": coalesce(bodyHtml.en, bodyHtml.tr),
+      "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
+      "date": publishedAt,
+      "category": coalesce(category.en, category.tr),
+      author {
+        name,
+        "role": coalesce(role.en, role.tr),
+        "image": coalesce(image.asset->url, imagePath, "/images/logo-koyu.png")
+      },
+      tags,
+      "readingTime": coalesce(readingTime.en, readingTime.tr)
+    }
+  }
+}
+`;
 
 const blogTranslations: Record<
   string,
@@ -110,7 +212,15 @@ function localizeBlogPost(post: ContentItem, locale: Locale): LocalizedBlogPost 
   };
 }
 
-export async function getPublicContent(locale: Locale): Promise<AppData> {
+function normalizeAppData(data: AppData): AppData {
+  return {
+    concepts: Array.isArray(data.concepts) ? data.concepts : [],
+    portfolio: Array.isArray(data.portfolio) ? data.portfolio : [],
+    blog: Array.isArray(data.blog) ? data.blog : [],
+  };
+}
+
+async function getLocalPublicContent(locale: Locale): Promise<AppData> {
   const db = await getDb();
 
   return {
@@ -120,15 +230,53 @@ export async function getPublicContent(locale: Locale): Promise<AppData> {
   };
 }
 
-export async function getHomepageShowcaseProjects(locale: Locale): Promise<ShowcaseProject[]> {
-  const db = await getDb();
+async function getSanityPublicContent(locale: Locale): Promise<AppData | null> {
+  const data = await sanityFetch<AppData>(PUBLIC_CONTENT_QUERY, { locale });
 
-  return db.portfolio.map((project, index) =>
-    normalizeShowcaseProject(localizeProject(project, locale), index, locale)
+  if (!data || (!data.portfolio?.length && !data.blog?.length)) {
+    return null;
+  }
+
+  return normalizeAppData(data);
+}
+
+async function getSanityLocalizedBlogEntry(
+  locale: Locale,
+  slug: string
+): Promise<LocalizedBlogEntry | null> {
+  const entry = await sanityFetch<{ localizations: Record<Locale, LocalizedBlogPost> }>(
+    BLOG_ENTRY_QUERY,
+    { locale, slug }
   );
+
+  if (!entry?.localizations?.[locale]) {
+    return null;
+  }
+
+  return {
+    base: entry.localizations[locale],
+    localizations: entry.localizations,
+  };
+}
+
+export async function getPublicContent(locale: Locale): Promise<AppData> {
+  const sanityContent = await getSanityPublicContent(locale);
+  return sanityContent || getLocalPublicContent(locale);
+}
+
+export async function getHomepageShowcaseProjects(locale: Locale): Promise<ShowcaseProject[]> {
+  const db = await getPublicContent(locale);
+
+  return db.portfolio.map((project, index) => normalizeShowcaseProject(project, index, locale));
 }
 
 export async function getLocalizedBlogEntry(locale: Locale, slug: string) {
+  const sanityEntry = await getSanityLocalizedBlogEntry(locale, slug);
+
+  if (sanityEntry) {
+    return sanityEntry;
+  }
+
   const db = await getDb();
   const basePost = db.blog.find((post) => localizeBlogPost(post, locale).slug === slug);
 

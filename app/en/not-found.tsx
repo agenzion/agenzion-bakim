@@ -2,9 +2,9 @@ import Link from 'next/link';
 
 import { getLocaleContent } from '@/lib/site-content';
 
-const content = getLocaleContent('en');
+export default async function EnglishNotFound() {
+  const content = await getLocaleContent('en');
 
-export default function EnglishNotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-950 text-white">
       <h2 className="text-6xl font-black brand-font mb-4">{content.notFound.code}</h2>

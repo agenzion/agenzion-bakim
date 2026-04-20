@@ -1,13 +1,17 @@
 import BlogIndexPage from '@/components/BlogIndexPage';
 import { getLocalizedBlogPosts } from '@/lib/content';
 import { buildWebPageJsonLd } from '@/lib/seo';
+import { getSiteSettings } from '@/lib/site';
 import { getLocaleContent } from '@/lib/site-content';
 
-const content = getLocaleContent('en');
 export const dynamic = 'force-dynamic';
 
 export default async function EnglishBlogPage() {
-  const blog = await getLocalizedBlogPosts('en');
+  const [content, blog, settings] = await Promise.all([
+    getLocaleContent('en'),
+    getLocalizedBlogPosts('en'),
+    getSiteSettings(),
+  ]);
   const jsonLd = buildWebPageJsonLd({
     locale: 'en',
     title: content.meta.blogTitle,
@@ -27,6 +31,7 @@ export default async function EnglishBlogPage() {
         alternatePath="/blog"
         navigation={content.navigation}
         footer={content.footer}
+        socialLinks={settings.socialLinks}
         blogCopy={content.blog}
         blog={blog}
       />

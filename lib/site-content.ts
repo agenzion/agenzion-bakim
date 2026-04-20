@@ -1,4 +1,5 @@
 import type { Locale } from '@/lib/i18n';
+import { sanityFetch } from '@/lib/sanity';
 
 export const localeMeta = {
   tr: {
@@ -594,6 +595,54 @@ export const siteContent = {
 
 export type SiteContent = (typeof siteContent)[Locale];
 
-export function getLocaleContent(locale: Locale) {
+const SITE_CONTENT_QUERY = /* groq */ `
+  *[_type == "siteContent" && language == $locale][0]{
+    meta,
+    navigation,
+    hero,
+    about,
+    services,
+    headlessCommerce,
+    showcase,
+    codeEditor,
+    contact,
+    blog,
+    footer,
+    notFound
+  }
+`;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+function mergeContent<T>(fallback: T, override: unknown): T {
+  if (override === null || override === undefined) {
+    return fallback;
+  }
+
+  if (Array.isArray(fallback)) {
+    return (Array.isArray(override) ? override : fallback) as T;
+  }
+
+  if (isRecord(fallback) && isRecord(override)) {
+    const merged: Record<string, unknown> = { ...fallback };
+
+    for (const [key, value] of Object.entries(override)) {
+      merged[key] = mergeContent(merged[key], value);
+    }
+
+    return merged as T;
+  }
+
+  return override as T;
+}
+
+export function getStaticLocaleContent(locale: Locale) {
   return siteContent[locale];
+}
+
+export async function getLocaleContent(locale: Locale): Promise<SiteContent> {
+  const content = await sanityFetch<Partial<SiteContent>>(SITE_CONTENT_QUERY, { locale });
+  return mergeContent(siteContent[locale], content);
 }
