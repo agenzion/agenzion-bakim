@@ -2,20 +2,12 @@ export const locales = ['tr', 'en'] as const;
 
 export type Locale = (typeof locales)[number];
 
-export type RouteKey = 'home' | 'about' | 'blog' | 'contact';
+export type RouteKey = 'home' | 'blog';
 
 const routeSegments = {
-  about: {
-    tr: 'hakkimizda',
-    en: 'about',
-  },
   blog: {
     tr: 'blog',
     en: 'blog',
-  },
-  contact: {
-    tr: 'iletisim',
-    en: 'contact',
   },
 } as const;
 
@@ -77,14 +69,6 @@ export function normalizePublicPathname(pathname: string) {
 
   if (path === '/' || path === '') {
     return '/';
-  }
-
-  if (path === '/about' || path === '/hakkimizda') {
-    return '/about';
-  }
-
-  if (path === '/contact' || path === '/iletisim') {
-    return '/contact';
   }
 
   if (path === '/blog' || path.startsWith('/blog/')) {

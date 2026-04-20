@@ -37,7 +37,21 @@ export function buildLocalizedMetadata({
 }): Metadata {
   const currentLocale = localeMeta[locale];
   const alternateLocale = locale === 'tr' ? localeMeta.en.openGraphLocale : localeMeta.tr.openGraphLocale;
-  const absoluteImages = images.map(toAbsoluteImage);
+  const absoluteImages = images.map((image) => {
+    const url = toAbsoluteImage(image);
+
+    return image === siteConfig.ogImage
+      ? {
+          url,
+          width: 1200,
+          height: 630,
+          alt: title,
+        }
+      : {
+          url,
+          alt: title,
+        };
+  });
 
   return {
     title,
@@ -67,7 +81,7 @@ export function buildLocalizedMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: absoluteImages,
+      images: absoluteImages.map((image) => image.url),
     },
     ...(noIndex
       ? {

@@ -44,7 +44,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     trPath: `/blog/${post.slug}`,
     enPath: entry ? `/en/blog/${entry.localizations.en.slug}` : '/en/blog',
     type: 'article',
-    images: post.image ? [post.image] : undefined,
     publishedTime: post.date,
     authors: post.author?.name ? [post.author.name] : undefined,
     tags: post.tags,
@@ -58,7 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) {
     return (
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#020205] via-[#0a0a1a] to-[#020205] text-white">
+      <div className="relative min-h-screen overflow-hidden bg-transparent text-white">
         <div className="relative z-10 flex min-h-screen flex-col items-center justify-center text-center">
           <h1 className="mb-4 text-4xl font-bold">{content.blog.postNotFoundTitle}</h1>
           <Link href={getLocalizedPath('tr', 'blog')} className="text-white/70 hover:underline">
@@ -117,7 +116,7 @@ export default async function BlogPostPage({ params }: Props) {
   };
 
   return (
-    <main lang="tr" className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#020205] via-[#0a0a1a] to-[#020205] text-white">
+    <main lang="tr" className="relative min-h-screen overflow-hidden bg-transparent text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

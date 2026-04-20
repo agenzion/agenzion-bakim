@@ -4,7 +4,6 @@ import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import Link from 'next/link';
 import Image from 'next/image';
-import MobileMenu from './MobileMenu';
 import BrandLogo from './BrandLogo';
 import LanguageSwitch from './LanguageSwitch';
 import type { NavigationCopy } from './navigation';
@@ -34,6 +33,8 @@ const Hero: React.FC<{
   const END_MOVEMENT = 0.7;
   const TEXT_FADE_START = 0.7;
   const TEXT_FADE_END = 0.8;
+  const TEXT1_FADE_START = isMobile ? 0.32 : 0.4;
+  const TEXT1_FADE_END = isMobile ? 0.44 : 0.5;
 
   // BACKGROUND INTERPOLATION
   const backgroundColor = useTransform(
@@ -43,9 +44,9 @@ const Hero: React.FC<{
   );
 
   // TEXT TRANSITIONS
-  const text1Opacity = useTransform(scrollYProgress, [0.4, 0.5], [1, 0]);
-  const text1Y = useTransform(scrollYProgress, [0.4, 0.5], [0, -50]);
-  const text1Scale = useTransform(scrollYProgress, [0.4, 0.5], [1, 0.9]);
+  const text1Opacity = useTransform(scrollYProgress, [TEXT1_FADE_START, TEXT1_FADE_END], [1, 0]);
+  const text1Y = useTransform(scrollYProgress, [TEXT1_FADE_START, TEXT1_FADE_END], [0, -50]);
+  const text1Scale = useTransform(scrollYProgress, [TEXT1_FADE_START, TEXT1_FADE_END], [1, 0.9]);
 
   // Phase 2 (Eclipse/Dark mode text)
   const text2Opacity = useTransform(scrollYProgress, [TEXT_FADE_START, TEXT_FADE_END], [0, 1]);
@@ -55,12 +56,12 @@ const Hero: React.FC<{
   const moonX = useTransform(
     scrollYProgress,
     [0, END_MOVEMENT],
-    [isMobile ? '28vw' : '40vw', '0vw']
+    [isMobile ? '42vw' : '40vw', '0vw']
   );
   const moonY = useTransform(
     scrollYProgress,
     [0, END_MOVEMENT],
-    [isMobile ? '12vh' : '20vh', '0vh']
+    [isMobile ? '18vh' : '20vh', '0vh']
   );
   const moonScale = useTransform(
     scrollYProgress,
@@ -102,15 +103,9 @@ const Hero: React.FC<{
             priority
           />
         </Link>
-        <div className="hidden md:flex items-center gap-8">
-          <Link href={getLocalizedPath(locale, 'about')}>
-            <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.about}</motion.span>
-          </Link>
+        <div className="flex items-center gap-4 md:gap-8">
           <Link href={getLocalizedPath(locale, 'blog')}>
             <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.blog}</motion.span>
-          </Link>
-          <Link href={getLocalizedPath(locale, 'contact')}>
-            <motion.span style={{ color: navColor }} className="text-sm font-medium">{navigation.contact}</motion.span>
           </Link>
           <motion.span
             aria-hidden="true"
@@ -119,10 +114,6 @@ const Hero: React.FC<{
           />
           <LanguageSwitch locale={locale} href={alternatePath} color={navColor} />
         </div>
-        <div className="flex shrink-0 items-center gap-2 md:hidden">
-          <LanguageSwitch locale={locale} href={alternatePath} color={navColor} className="text-sm" />
-          <MobileMenu color={navColor} locale={locale} copy={navigation} />
-        </div>
       </nav>
 
       {/* Sticky Viewport */}
@@ -130,9 +121,9 @@ const Hero: React.FC<{
         style={{ backgroundColor }}
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center z-10 transition-colors duration-0"
       >
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-10 px-5 pt-24 md:flex-row md:justify-between md:gap-0 md:px-24 md:pt-0">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-10 px-5 pt-12 md:flex-row md:justify-between md:gap-0 md:px-24 md:pt-0">
           {/* Text Content */}
-          <div className="relative z-40 flex w-full items-center justify-center pointer-events-none md:w-1/2 md:justify-start">
+          <div className="relative z-40 hidden w-full items-center justify-center pointer-events-none md:flex md:w-1/2 md:justify-start">
             <div className="relative flex h-[120px] w-full items-center justify-center md:h-[400px] md:justify-start">
               {/* --- TEXT PHASE 1 --- */}
               <motion.div
@@ -162,6 +153,27 @@ const Hero: React.FC<{
           {/* Celestial System */}
           <div className="relative flex w-full items-center justify-center md:w-1/2 md:justify-end">
             <div className="relative flex h-[260px] w-[260px] items-center justify-center md:h-[600px] md:w-[600px]">
+              <motion.div
+                style={{ opacity: text1Opacity, y: text1Y, scale: text1Scale }}
+                className="absolute inset-0 z-40 flex items-center justify-center px-6 text-center pointer-events-none md:hidden"
+              >
+                <h1 className="max-w-[8ch] text-[clamp(2rem,9vw,2.7rem)] font-extrabold leading-[0.92] tracking-tighter text-gray-950">
+                  {copy.primaryTitle}
+                </h1>
+              </motion.div>
+
+              <motion.div
+                style={{ x: moonX, y: moonY, scale: moonScale, opacity: text2Opacity }}
+                className="absolute inset-0 z-40 flex items-center justify-center px-6 text-center pointer-events-none md:hidden"
+              >
+                <motion.h1
+                  style={{ y: text2Y, textShadow: '0 0 30px rgba(255,255,255,0.5)' }}
+                  className="max-w-[7ch] text-[clamp(1.8rem,8.4vw,2.4rem)] font-extrabold leading-[0.94] tracking-tight text-white"
+                >
+                  {copy.secondaryTitle}
+                </motion.h1>
+              </motion.div>
+
               {/* THE SUN */}
               <motion.div
                 style={{

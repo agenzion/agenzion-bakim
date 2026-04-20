@@ -1,20 +1,20 @@
 'use client';
 
-import { animate, motion, useMotionValue, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
-import { ABOUT_STARFLOW_EVENT, type AboutStarflowDetail } from '@/lib/aboutStarflow';
-import { normalizePublicPathname } from '@/lib/i18n';
+import { stripLocalePrefix } from '@/lib/i18n';
 
-const SKY_ROUTE_ORDER = ['/about', '/blog', '/contact'] as const;
-const PANORAMA_VIEWPORTS = SKY_ROUTE_ORDER.length;
+const PANORAMA_VIEWPORTS = 3;
+const SKY_ROUTE_INDEX = {
+  blog: 1,
+  contact: 2,
+} as const;
 const SATURN_IMAGE_SRC =
   'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Saturnx.png/960px-Saturnx.png?_=20150805205322';
-const ASTRONAUT_IMAGE_SRC = '/images/space/astronaut.png';
 
-type SkyRoute = (typeof SKY_ROUTE_ORDER)[number];
+type SkyRoute = keyof typeof SKY_ROUTE_INDEX;
 
 interface StarSpec {
   id: string;
@@ -201,18 +201,14 @@ const PANORAMA_SHOOTING_STARS: ShootingStarSpec[] = [
 ];
 
 const getSkyRoute = (pathname: string): SkyRoute | null => {
-  const normalized = normalizePublicPathname(pathname);
+  const path = stripLocalePrefix(pathname);
 
-  if (normalized.startsWith('/about')) {
-    return '/about';
+  if (path === '/blog') {
+    return 'blog';
   }
 
-  if (normalized.startsWith('/blog')) {
-    return '/blog';
-  }
-
-  if (normalized.startsWith('/contact')) {
-    return '/contact';
+  if (path.startsWith('/blog/')) {
+    return 'contact';
   }
 
   return null;
@@ -221,66 +217,13 @@ const getSkyRoute = (pathname: string): SkyRoute | null => {
 const SpaceRouteBackground = () => {
   const pathname = usePathname();
   const reducedMotion = useReducedMotion();
-  const astronautGustX = useMotionValue(0);
-  const astronautGustY = useMotionValue(0);
-  const astronautGustScale = useMotionValue(1);
-  const gustAnimationsRef = useRef<Array<{ stop: () => void }>>([]);
   const route = getSkyRoute(pathname);
-
-  useEffect(() => {
-    if (route !== '/about' || reducedMotion) {
-      astronautGustX.set(0);
-      astronautGustY.set(0);
-      astronautGustScale.set(1);
-      return;
-    }
-
-    const stopGustAnimations = () => {
-      gustAnimationsRef.current.forEach((animation) => animation.stop());
-      gustAnimationsRef.current = [];
-    };
-
-    const handleStarflow = (event: Event) => {
-      const { detail } = event as CustomEvent<AboutStarflowDetail>;
-      const direction = detail.direction === -1 ? -1 : 1;
-      const intensity = clamp(detail.intensity ?? 1, 0.85, 1.65);
-      const xBurst = 28 * intensity * direction;
-      const yBurst = 14 * intensity * direction;
-
-      stopGustAnimations();
-
-      gustAnimationsRef.current = [
-        animate(astronautGustX, [astronautGustX.get(), xBurst, xBurst * 0.3, 0], {
-          duration: 1.34,
-          ease: 'easeInOut',
-          times: [0, 0.28, 0.66, 1],
-        }),
-        animate(astronautGustY, [astronautGustY.get(), yBurst, yBurst * 0.28, 0], {
-          duration: 1.2,
-          ease: 'easeInOut',
-          times: [0, 0.3, 0.68, 1],
-        }),
-        animate(astronautGustScale, [1, 1.03, 0.995, 1], {
-          duration: 1.08,
-          ease: 'easeInOut',
-          times: [0, 0.3, 0.7, 1],
-        }),
-      ];
-    };
-
-    window.addEventListener(ABOUT_STARFLOW_EVENT, handleStarflow as EventListener);
-
-    return () => {
-      window.removeEventListener(ABOUT_STARFLOW_EVENT, handleStarflow as EventListener);
-      stopGustAnimations();
-    };
-  }, [astronautGustScale, astronautGustX, astronautGustY, reducedMotion, route]);
 
   if (!route) {
     return null;
   }
 
-  const routeIndex = SKY_ROUTE_ORDER.indexOf(route);
+  const routeIndex = SKY_ROUTE_INDEX[route];
 
   return (
     <div
@@ -370,72 +313,6 @@ const SpaceRouteBackground = () => {
             </div>
           );
         })}
-
-        <div
-          className="absolute"
-          style={{
-            left: '16vw',
-            top: 'clamp(8rem, 15vw, 12rem)',
-            width: 'clamp(4.4rem, 6.2vw, 7rem)',
-            height: 'clamp(4.4rem, 6.2vw, 7rem)',
-          }}
-        >
-          <motion.div
-            className="absolute inset-0"
-            animate={
-              reducedMotion
-                ? undefined
-                : {
-                    x: ['0vw', '6vw', '12vw', '8vw', '-2vw', '0vw'],
-                    y: ['0vh', '3vh', '12vh', '21vh', '14vh', '0vh'],
-                  }
-            }
-            transition={
-              reducedMotion
-                ? undefined
-                : {
-                    duration: 34,
-                    ease: 'easeInOut',
-                    repeat: Infinity,
-                  }
-            }
-          >
-            <motion.div
-              className="absolute inset-0"
-              style={{
-                x: astronautGustX,
-                y: astronautGustY,
-                scale: astronautGustScale,
-              }}
-            >
-              <div className="absolute inset-[14%] rounded-full bg-[#8cc7e0]/10 blur-2xl" />
-              <motion.div
-                className="relative h-full w-full opacity-75"
-                animate={reducedMotion ? undefined : { rotate: 360 }}
-                transition={
-                  reducedMotion
-                    ? undefined
-                    : {
-                        duration: 18,
-                        ease: 'linear',
-                        repeat: Infinity,
-                      }
-                }
-              >
-                <Image
-                  src={ASTRONAUT_IMAGE_SRC}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 7rem, (min-width: 768px) 6rem, (min-width: 640px) 5rem, 4.4rem"
-                  className="object-contain"
-                  style={{
-                    filter: 'brightness(0.82) saturate(0.9) contrast(0.98)',
-                  }}
-                />
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </div>
 
         <div
           className="absolute"

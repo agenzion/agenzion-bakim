@@ -1,10 +1,13 @@
 import BlogIndexPage from '@/components/BlogIndexPage';
+import { getLocalizedBlogPosts } from '@/lib/content';
 import { buildWebPageJsonLd } from '@/lib/seo';
 import { getLocaleContent } from '@/lib/site-content';
 
 const content = getLocaleContent('en');
+export const dynamic = 'force-dynamic';
 
-export default function EnglishBlogPage() {
+export default async function EnglishBlogPage() {
+  const blog = await getLocalizedBlogPosts('en');
   const jsonLd = buildWebPageJsonLd({
     locale: 'en',
     title: content.meta.blogTitle,
@@ -25,6 +28,7 @@ export default function EnglishBlogPage() {
         navigation={content.navigation}
         footer={content.footer}
         blogCopy={content.blog}
+        blog={blog}
       />
     </>
   );

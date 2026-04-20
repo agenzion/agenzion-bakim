@@ -1,91 +1,33 @@
 {
-  "concepts": [
-    {
-      "id": "1",
-      "title": "Geleceğin Web Deneyimi 1",
-      "description": "Yenilikçi arayüzler ve etkileşimli tasarım yaklaşımları.",
-      "image": "https://picsum.photos/seed/concept1/1200/800"
-    },
-    {
-      "id": "2",
-      "title": "Geleceğin Web Deneyimi 2",
-      "description": "Yenilikçi arayüzler ve etkileşimli tasarım yaklaşımları.",
-      "image": "https://picsum.photos/seed/concept2/1200/800"
-    }
-  ],
+  "concepts": [],
   "portfolio": [
     {
-      "id": "1774569990041",
-      "title": "Aerotek Mühendislik",
-      "description": "Teknik bir yapıyı, akıcı ve keyifli bir deneyimle buluşturduk. Hareketli geçişler ve ince animasyonlar, siteye canlılık kazandırır. Fonksiyon ile estetiğin dengeli birleşimi.",
-      "label": "Web Tasarım",
-      "reviewUrl": "https://aerotekmuhendislik.com/",
-      "image": "/images/projects/aero.jpg",
-      "color": "#f59e0b"
-    },
-    {
-      "id": "1774569945030",
-      "title": "Kolan Online",
-      "description": "Karmaşık sağlık süreçlerini, sade ve anlaşılır bir deneyime dönüştürdük. Kullanıcıyı yormayan akışlar ve net arayüz ile erişilebilirlik ön planda. Fonksiyonel, hızlı ve kullanıcı odaklı bir mobil deneyim.",
-      "label": "UI/UX Tasarım",
+      "id": "placeholder-project",
+      "title": "Projeler Yakında",
+      "description": "Sanity CMS bağlantısı tamamlandığında seçili işler ve detaylı proje anlatımları burada yer alacak.",
+      "label": "Sanity CMS",
       "reviewUrl": "",
-      "image": "/images/projects/kolan.jpg",
-      "color": "#3b82f6"
-    },
-    {
-      "id": "1774569832516",
-      "title": "Ayse Kuloğlu",
-      "description": "Güven ve samimiyeti merkeze alan, sade ve dengeli bir deneyim tasarladık. İçeriğin ön planda olduğu yapı, kullanıcıyla doğal bir bağ kurar. Dijitalde, sakin ve güven veren bir alan.",
-      "label": "Website Tasarımı",
-      "reviewUrl": "https://www.aysekuloglu.com/",
-      "image": "/images/projects/aysekul.jpg",
-      "color": "#8b5cf6"
-    },
-    {
-      "id": "1774554716067",
-      "title": "BSC HUKUK",
-      "description": "Gereksiz olan her şeyi kaldırarak, hukukun özündeki netliği ve güveni öne çıkaran bir deneyim tasarladık. Sade görünen yapı, akıcı geçişler ve dengeli boşluklarla derin bir odak hissi yaratır. Minimalizm burada bir stil değil, bir duruş.",
-      "label": "Website Tasarımı",
-      "reviewUrl": "https://bsc.agenzion.com/",
-      "image": "/images/projects/bsc.jpg",
-      "color": "#ef4444"
-    },
-    {
-      "id": "1",
-      "title": "Fidanoğlu Elektrik",
-      "description": "Markanın ölçeğini ve gücünü dijitalde hissedilir kılan bir yapı kurduk. Güçlü tipografi ve akıcı deneyimle, kurumsal ağırlığı modern bir anlatımla buluşturduk. Sadece bir web sitesi değil, markanın dijital vitrini.",
-      "label": "Website Tasarımı",
-      "reviewUrl": " https://fidanogluelektrik.com.tr/",
-      "image": "/images/projects/fidan.jpg",
-      "color": "#06b6d4"
+      "image": "/images/project-placeholder.jpg",
+      "color": "#06B6D4"
     }
   ],
   "blog": [
     {
-      "id": "1772396356432",
-      "slug": "yeni-balk",
-      "title": "Başlık Buraya",
-      "description": "Açıklama burada",
-      "content": "<p>Yeni içerik buraya...</p>\nSDasdasdasd\nasdasdsada\n\nasdasdas\nd",
-      "image": "https://picsum.photos/800/600",
-      "date": "2026-03-01",
-      "category": "AI"
-    },
-    {
-      "id": "1",
-      "slug": "modern-web-tasarim-trendleri",
-      "title": "Modern Web Tasarım Trendleri",
-      "description": "2024 yılında öne çıkan tasarım yaklaşımları ve teknolojik yenilikler.",
-      "image": "https://picsum.photos/seed/blog1/1200/800",
-      "date": "2024-02-21"
-    },
-    {
-      "id": "2",
-      "slug": "hiz-ve-performansin-onemi",
-      "title": "Hız ve Performansın Önemi",
-      "description": "Kullanıcı deneyimini artıran teknik optimizasyonlar ve stratejiler.",
-      "image": "https://picsum.photos/seed/blog2/1200/800",
-      "date": "2024-02-15"
+      "id": "placeholder-blog",
+      "slug": "sanity-icerikleri-yakinda",
+      "title": "Sanity İçerikleri Yakında",
+      "description": "Blog yazıları Sanity CMS entegrasyonu tamamlandığında burada yayınlanacak.",
+      "content": "<p>Sanity CMS bağlantısı hazır olduğunda Agenzion blog içerikleri bu alandan yönetilecek ve yayına alınacak.</p>",
+      "image": "/images/project-placeholder.jpg",
+      "date": "2026-04-19",
+      "category": "Duyuru",
+      "author": {
+        "name": "Agenzion",
+        "role": "Web Studio",
+        "image": "/images/logo-koyu.png"
+      },
+      "tags": ["Sanity", "CMS"],
+      "readingTime": "1 dk"
     }
   ]
 }

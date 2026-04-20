@@ -20,27 +20,35 @@ const blogTranslations: Record<
   string,
   Partial<Record<Locale, Partial<ContentItem>>>
 > = {
-  '1772396356432': {
+  'placeholder-blog': {
     en: {
-      slug: 'title-goes-here',
-      title: 'Title Goes Here',
-      description: 'Description goes here',
-      content: '<p>New content goes here...</p>',
-    },
-  },
-  '1': {
-    en: {
-      slug: 'modern-web-design-trends',
-      title: 'Modern Web Design Trends',
-      description: 'Design approaches and technology shifts standing out in 2024.',
-    },
-  },
-  '2': {
-    en: {
-      slug: 'why-speed-and-performance-matter',
-      title: 'Why Speed and Performance Matter',
+      slug: 'sanity-content-coming-soon',
+      title: 'Sanity Content Coming Soon',
       description:
-        'Technical optimizations and strategies that improve the user experience.',
+        'Blog posts will be published here after the Sanity CMS integration is complete.',
+      content:
+        '<p>Once the Sanity CMS connection is ready, Agenzion blog content will be managed and published from there.</p>',
+      category: 'Announcement',
+      readingTime: '1 min',
+      author: {
+        name: 'Agenzion',
+        role: 'Web Studio',
+        image: '/images/logo-koyu.png',
+      },
+    },
+  },
+};
+
+const projectTranslations: Record<
+  string,
+  Partial<Record<Locale, Partial<ContentItem>>>
+> = {
+  'placeholder-project': {
+    en: {
+      title: 'Projects Coming Soon',
+      description:
+        'Selected work and detailed project stories will appear here after the Sanity CMS integration is complete.',
+      label: 'Sanity CMS',
     },
   },
 };
@@ -79,6 +87,12 @@ function normalizeShowcaseProject(
   };
 }
 
+function localizeProject(project: ContentItem, locale: Locale): ContentItem {
+  const translation = projectTranslations[project.id]?.[locale];
+
+  return translation ? { ...project, ...translation } : project;
+}
+
 function localizeBlogPost(post: ContentItem, locale: Locale): LocalizedBlogPost {
   const translation = blogTranslations[post.id]?.[locale];
 
@@ -101,6 +115,7 @@ export async function getPublicContent(locale: Locale): Promise<AppData> {
 
   return {
     ...db,
+    portfolio: db.portfolio.map((project) => localizeProject(project, locale)),
     blog: db.blog.map((post) => localizeBlogPost(post, locale)),
   };
 }
@@ -109,7 +124,7 @@ export async function getHomepageShowcaseProjects(locale: Locale): Promise<Showc
   const db = await getDb();
 
   return db.portfolio.map((project, index) =>
-    normalizeShowcaseProject(project, index, locale)
+    normalizeShowcaseProject(localizeProject(project, locale), index, locale)
   );
 }
 

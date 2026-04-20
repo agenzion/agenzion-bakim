@@ -1,10 +1,9 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, ChevronLeft, Share2, User } from 'lucide-react';
 
 import type { ContentItem } from '@/lib/db';
+import { getSafeImageSrc, isRemoteImageSrc } from '@/lib/image';
 import { type Locale, getLocalizedPath } from '@/lib/i18n';
 
 interface BlogPostDetailProps {
@@ -25,7 +24,6 @@ interface BlogPostDetailProps {
     nextArticleLabel: string;
   };
   nextPostTitle?: string | null;
-  onClose?: () => void;
 }
 
 function formatBlogDate(date: string | undefined, locale: Locale, fallback: string) {
@@ -51,51 +49,22 @@ export default function BlogPostDetail({
   locale,
   copy,
   nextPostTitle,
-  onClose,
 }: BlogPostDetailProps) {
   const blogHref = getLocalizedPath(locale, 'blog');
-  const backLabel = copy.backLabel;
-
-  const BackControl = onClose ? (
-    <button
-      type="button"
-      onClick={onClose}
-      className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-left text-sm font-mono uppercase tracking-wider text-white/55 backdrop-blur-xl transition-all hover:border-white/20 hover:text-white"
-    >
-      <ChevronLeft size={16} />
-      {backLabel}
-    </button>
-  ) : (
-    <Link
-      href={blogHref}
-      className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-mono uppercase tracking-wider text-white/55 backdrop-blur-xl transition-all hover:border-white/20 hover:text-white"
-    >
-      <ChevronLeft size={16} />
-      {backLabel}
-    </Link>
-  );
-
-  const AllPostsControl = onClose ? (
-    <button
-      type="button"
-      onClick={onClose}
-      className="rounded-full bg-white px-8 py-4 text-sm font-bold uppercase tracking-widest text-[#020205] transition-transform hover:scale-105"
-    >
-      {copy.allPostsLabel}
-    </button>
-  ) : (
-    <Link
-      href={blogHref}
-      className="rounded-full bg-white px-8 py-4 text-sm font-bold uppercase tracking-widest text-[#020205] transition-transform hover:scale-105"
-    >
-      {copy.allPostsLabel}
-    </Link>
-  );
+  const authorName = post.author?.name || copy.teamLabel;
+  const authorImageSrc = getSafeImageSrc(post.author?.image);
+  const postImageSrc = getSafeImageSrc(post.image);
 
   return (
     <article className="relative z-10 mx-auto max-w-4xl px-6 pb-20 pt-32 text-white">
       <div className="mb-12 flex items-center justify-between gap-6">
-        {BackControl}
+        <Link
+          href={blogHref}
+          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-mono uppercase tracking-wider text-white/55 backdrop-blur-xl transition-all hover:border-white/20 hover:text-white"
+        >
+          <ChevronLeft size={16} />
+          {copy.backLabel}
+        </Link>
         <div className="flex items-center gap-4">
           <button
             type="button"
@@ -128,11 +97,13 @@ export default function BlogPostDetail({
         <div className="flex flex-wrap items-center gap-8 border-y border-white/10 py-8">
           <div className="flex items-center gap-3">
             <div className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
-              {post.author?.image ? (
+              {authorImageSrc ? (
                 <Image
-                  src={post.author.image}
-                  alt={post.author.name}
+                  src={authorImageSrc}
+                  alt={authorName}
                   fill
+                  sizes="48px"
+                  unoptimized={isRemoteImageSrc(authorImageSrc)}
                   className="object-cover"
                   referrerPolicy="no-referrer"
                 />
@@ -143,9 +114,7 @@ export default function BlogPostDetail({
               )}
             </div>
             <div>
-              <div className="text-sm font-bold">
-                {post.author?.name || copy.teamLabel}
-              </div>
+              <div className="text-sm font-bold">{authorName}</div>
               <div className="text-[10px] uppercase tracking-wider text-white/50">
                 {post.author?.role || copy.authorFallback}
               </div>
@@ -160,12 +129,14 @@ export default function BlogPostDetail({
       </header>
 
       <div className="relative mb-16 aspect-[16/9] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-black/35">
-        {post.image ? (
+        {postImageSrc ? (
           <Image
-            src={post.image}
+            src={postImageSrc}
             alt={post.title}
             fill
             priority
+            sizes="(min-width: 1024px) 896px, calc(100vw - 48px)"
+            unoptimized={isRemoteImageSrc(postImageSrc)}
             className="object-cover"
             referrerPolicy="no-referrer"
           />
@@ -239,7 +210,12 @@ export default function BlogPostDetail({
               {nextPostTitle || post.title}
             </h4>
           </div>
-          {AllPostsControl}
+          <Link
+            href={blogHref}
+            className="rounded-full bg-white px-8 py-4 text-sm font-bold uppercase tracking-widest text-[#020205] transition-transform hover:scale-105"
+          >
+            {copy.allPostsLabel}
+          </Link>
         </div>
       </footer>
     </article>

@@ -12,9 +12,7 @@ interface MobileMenuProps {
   color?: string | MotionValue<string>;
   locale: Locale;
   copy: {
-    about: string;
     blog: string;
-    contact: string;
     openMenu: string;
     closeMenu: string;
     socialLabel: string;
@@ -60,9 +58,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   }, [isOpen]);
 
   const menuItems = [
-    { name: copy.about, href: getLocalizedPath(locale, 'about') },
     { name: copy.blog, href: getLocalizedPath(locale, 'blog') },
-    { name: copy.contact, href: getLocalizedPath(locale, 'contact') },
   ];
 
   const containerVariants: Variants = {

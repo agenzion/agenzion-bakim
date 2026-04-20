@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
-import MobileMenu from './MobileMenu';
 import BrandLogo from './BrandLogo';
 import LanguageSwitch from './LanguageSwitch';
 import type { NavigationProps } from './navigation';
@@ -81,39 +80,18 @@ const Navbar: React.FC<
             priority
           />
         </Link>
-        <div className="hidden md:flex items-center gap-8">
-          <Link
-            href={getLocalizedPath(locale, 'about')}
-            className="text-sm font-medium hover:opacity-70 transition-opacity"
-          >
-            {copy.about}
-          </Link>
+        <div className="flex items-center gap-4 md:gap-8">
           <Link
             href={getLocalizedPath(locale, 'blog')}
             className="text-sm font-medium hover:opacity-70 transition-opacity"
           >
             {copy.blog}
           </Link>
-          <Link
-            href={getLocalizedPath(locale, 'contact')}
-            className="text-sm font-medium hover:opacity-70 transition-opacity"
-          >
-            {copy.contact}
-          </Link>
           <span
             aria-hidden="true"
             className="h-4 w-px bg-current/25 mix-blend-normal"
           />
           <LanguageSwitch locale={locale} href={alternatePath} dark={isDarkBackground} />
-        </div>
-        <div className="flex shrink-0 items-center gap-2 md:hidden">
-          <LanguageSwitch
-            locale={locale}
-            href={alternatePath}
-            dark={isDarkBackground}
-            className="text-sm"
-          />
-          <MobileMenu color="white" locale={locale} copy={copy} />
         </div>
     </motion.nav>
   );

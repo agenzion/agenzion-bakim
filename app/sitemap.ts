@@ -31,18 +31,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     },
     {
-      url: absoluteUrl('/hakkimizda'),
-      lastModified: fallbackDate,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-      alternates: {
-        languages: {
-          'tr-TR': absoluteUrl('/hakkimizda'),
-          'en-US': absoluteUrl('/en/about'),
-        },
-      },
-    },
-    {
       url: absoluteUrl('/blog'),
       lastModified: fallbackDate,
       changeFrequency: 'weekly',
@@ -51,18 +39,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           'tr-TR': absoluteUrl('/blog'),
           'en-US': absoluteUrl('/en/blog'),
-        },
-      },
-    },
-    {
-      url: absoluteUrl('/iletisim'),
-      lastModified: fallbackDate,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-      alternates: {
-        languages: {
-          'tr-TR': absoluteUrl('/iletisim'),
-          'en-US': absoluteUrl('/en/contact'),
         },
       },
     },
@@ -79,18 +55,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     },
     {
-      url: absoluteUrl('/en/about'),
-      lastModified: fallbackDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-      alternates: {
-        languages: {
-          'tr-TR': absoluteUrl('/hakkimizda'),
-          'en-US': absoluteUrl('/en/about'),
-        },
-      },
-    },
-    {
       url: absoluteUrl('/en/blog'),
       lastModified: fallbackDate,
       changeFrequency: 'weekly',
@@ -99,18 +63,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           'tr-TR': absoluteUrl('/blog'),
           'en-US': absoluteUrl('/en/blog'),
-        },
-      },
-    },
-    {
-      url: absoluteUrl('/en/contact'),
-      lastModified: fallbackDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-      alternates: {
-        languages: {
-          'tr-TR': absoluteUrl('/iletisim'),
-          'en-US': absoluteUrl('/en/contact'),
         },
       },
     },

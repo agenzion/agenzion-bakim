@@ -2,7 +2,9 @@ export const siteConfig = {
   name: 'Agenzion Web Studio',
   url: 'https://agenzion.com',
   locale: 'tr_TR',
-  ogImage: '/images/logo-acik.png',
+  logoImage: '/images/logo-koyu.png',
+  ogImage: '/images/share-logo.png',
+  favicon: '/favicon.png',
   description:
     'Agenzion; performans, SEO ve yaratıcı etkileşimi birlikte ele alan İstanbul merkezli butik web tasarım ve geliştirme stüdyosudur.',
   email: 'info@agenzion.com',
@@ -18,13 +20,9 @@ export const siteConfig = {
 
 export const staticRoutes = [
   '/',
-  '/hakkimizda',
   '/blog',
-  '/iletisim',
   '/en',
-  '/en/about',
   '/en/blog',
-  '/en/contact',
 ] as const;
 
 export function absoluteUrl(path = '/') {

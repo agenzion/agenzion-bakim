@@ -63,6 +63,24 @@ const showcasePlanets: PlanetSpec[] = [
 
 const glowFadeMask = 'linear-gradient(to bottom, transparent 0%, black 16%, black 84%, transparent 100%)';
 
+function hexToRgba(hex: string, alpha: number) {
+  const normalized = hex.replace('#', '');
+  const fullHex =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map((char) => `${char}${char}`)
+          .join('')
+      : normalized;
+
+  const value = Number.parseInt(fullHex, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 const StarryBackground = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -291,6 +309,8 @@ const Card: React.FC<CardProps> = ({
   const scale = useTransform(progress, range, [1, targetScale]);
   const hasReviewUrl = Boolean(reviewUrl?.trim());
   const imageSrc = img || '/images/project-placeholder.jpg';
+  const cardGlowColor = hexToRgba(color, 0.2);
+  const cardGlowCoreColor = hexToRgba(color, 0.34);
 
   return (
     <div
@@ -304,6 +324,27 @@ const Card: React.FC<CardProps> = ({
         }}
         className="relative w-full max-w-6xl aspect-square md:aspect-[2/1] rounded-3xl border border-white/10 bg-neutral-950 md:bg-neutral-900/60 md:backdrop-blur-sm shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2"
       >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+        >
+          <motion.div
+            className="absolute -left-16 top-1/2 h-56 w-56 -translate-y-1/2 rounded-full blur-[90px] md:h-72 md:w-72 md:blur-[120px]"
+            style={{ backgroundColor: color }}
+            animate={{
+              opacity: [0.12, 0.24, 0.12],
+              scale: [0.94, 1.04, 0.94],
+            }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(circle at 14% 52%, ${cardGlowCoreColor} 0%, ${cardGlowColor} 18%, transparent 46%)`,
+            }}
+          />
+        </div>
+
         {/* Left Column: Info */}
         <div className="p-8 md:p-12 flex flex-col justify-between h-full relative z-10">
           {/* Header */}
@@ -346,7 +387,7 @@ const Card: React.FC<CardProps> = ({
               <a
                 href={reviewUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="ml-auto flex items-center gap-2 text-white/50 text-xs uppercase tracking-widest group hover:text-white transition-colors"
               >
                 {reviewLabel}
@@ -372,6 +413,7 @@ const Card: React.FC<CardProps> = ({
               src={imageSrc}
               alt={title}
               loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
             />
@@ -389,6 +431,7 @@ const Card: React.FC<CardProps> = ({
             src={imageSrc}
             alt={title}
             loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
             className="h-full w-full object-cover"
             referrerPolicy="no-referrer"
           />

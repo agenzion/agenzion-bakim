@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import { Outfit } from 'next/font/google';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 import SpaceRouteBackground from '@/components/SpaceRouteBackground';
 import { absoluteUrl, siteConfig } from '@/lib/site';
 import './globals.css';
@@ -38,6 +39,11 @@ export const metadata: Metadata = {
       'x-default': '/',
     },
   },
+  icons: {
+    icon: [{ url: siteConfig.favicon, type: 'image/png' }],
+    shortcut: [{ url: siteConfig.favicon, type: 'image/png' }],
+    apple: [{ url: siteConfig.favicon, type: 'image/png' }],
+  },
   openGraph: {
     type: 'website',
     locale: siteConfig.locale,
@@ -46,13 +52,27 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [absoluteUrl(siteConfig.ogImage)],
+    images: [
+      {
+        url: absoluteUrl(siteConfig.ogImage),
+        width: 1200,
+        height: 630,
+        alt: siteConfig.name,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [absoluteUrl(siteConfig.ogImage)],
+    images: [
+      {
+        url: absoluteUrl(siteConfig.ogImage),
+        width: 1200,
+        height: 630,
+        alt: siteConfig.name,
+      },
+    ],
   },
   robots: {
     index: true,
@@ -72,7 +92,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     '@type': 'Organization',
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: absoluteUrl('/images/logo-koyu.png'),
+    logo: absoluteUrl(siteConfig.logoImage),
     email: siteConfig.email,
     telephone: siteConfig.phone,
     description: siteConfig.description,
@@ -126,6 +146,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <div className="relative z-10">
           {children}
         </div>
+        <ScrollToTopButton />
       </body>
     </html>
   );

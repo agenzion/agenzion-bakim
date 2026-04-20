@@ -4,6 +4,7 @@ import About from '@/components/About';
 import CodeEditor from '@/components/CodeEditor';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import HeadlessCommerceSection from '@/components/HeadlessCommerceSection';
 import Hero from '@/components/Hero';
 import Services from '@/components/Services';
 import Showcase from '@/components/Showcase';
@@ -44,7 +45,7 @@ export default async function Home() {
         copy={content.hero}
         navigation={content.navigation}
       />
-      <section className="relative -mt-px overflow-hidden bg-[linear-gradient(to_bottom,#000000_0%,#000000_34%,#020205_52%,#060916_76%,#020205_100%)]">
+      <section className="relative -mt-px overflow-x-clip bg-[linear-gradient(to_bottom,#000000_0%,#000000_34%,#020205_52%,#060916_76%,#020205_100%)]">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute right-[-12rem] top-[12%] h-[34rem] w-[34rem] rounded-full bg-[#4592AF]/10 blur-[160px]" />
           <div className="absolute left-[-10rem] top-[42%] h-[28rem] w-[28rem] rounded-full bg-blue-800/10 blur-[150px]" />
@@ -52,6 +53,11 @@ export default async function Home() {
         </div>
         <About paragraphs={content.about.paragraphs} />
         <Services heading={content.services.heading} services={content.services.items} />
+        <HeadlessCommerceSection
+          sections={content.headlessCommerce.sections}
+          indicatorLabel={content.headlessCommerce.indicatorLabel}
+          footerCopy={content.footer}
+        />
       </section>
       <div className="bg-neutral-950">
         <Showcase
@@ -62,7 +68,7 @@ export default async function Home() {
           projects={projects}
         />
         <CodeEditor copy={content.codeEditor} />
-        <Contact copy={content.contact} showMap={false} />
+        <Contact copy={content.contact} showMap showMapContactLinks />
         <Footer copy={content.footer} />
       </div>
     </main>

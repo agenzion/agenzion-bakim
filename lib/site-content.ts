@@ -35,9 +35,6 @@ export const siteContent = {
       homeTitle: 'Agenzion Web Studio | Performans Odaklı Web Tasarım ve Geliştirme',
       homeDescription:
         'Agenzion; performans, SEO ve yaratıcı etkileşimi birlikte ele alan İstanbul merkezli butik web tasarım ve geliştirme stüdyosudur.',
-      aboutTitle: 'Hakkımızda | Agenzion Web Studio',
-      aboutDescription:
-        'Agenzion; strateji, tasarım, hareket ve geliştirmeyi tek akışta birleştiren butik web stüdyosudur.',
       blogTitle: 'Blog | Agenzion Web Studio',
       blogDescription:
         'Performans, SEO, modern web tasarım ve dijital ürün geliştirme üzerine Agenzion notları ve teknik içerikler.',
@@ -101,7 +98,35 @@ export const siteContent = {
             'Operasyonel süreçlerinize özel, ihtiyaca göre şekillenen yazılım çözümleri geliştiriyoruz. Mevcut sistemlerle entegre çalışabilen, esnek ve yönetilebilir altyapılar kurguluyoruz.',
           gradient: 'from-emerald-600 to-green-400',
         },
+        {
+          id: 5,
+          title: 'Headless E-Ticaret',
+          description:
+            'Modern teknolojilerle güçlü ve ölçeklenebilir e-ticaret sistemleri geliştiririz. Tasarım ve performansı dengeli şekilde ele alarak sürdürülebilir bir yapı oluştururuz.',
+          gradient: 'from-amber-500 to-yellow-300',
+        },
       ],
+    },
+    headlessCommerce: {
+      sections: [
+        {
+          title: 'HEADLESS E-TİCARET',
+          text: 'Headless mimari ile içerik, ürün ve kullanıcı deneyimini tek bir hız çizgisinde buluşturuyoruz.',
+        },
+        {
+          title: 'HIZ ODAKLI ALTYAPI',
+          text: 'Ön yüz ve ticaret motorunu ayrıştırarak kampanya dönemlerinde bile hızlı kalan, ölçeklenebilir bir yapı kuruyoruz.',
+        },
+        {
+          title: 'ÖZGÜR DENEYİM TASARIMI',
+          text: 'Şablon sınırlarını kaldırıp markaya özel alışveriş akışları, esnek içerik blokları ve yüksek dönüşüm odaklı etkileşimler tasarlıyoruz.',
+        },
+        {
+          title: 'SÜRDÜRÜLEBİLİR BÜYÜME',
+          text: 'Analitik, SEO ve performansı aynı sistemde yöneterek e-ticaret ürününüzü uzun vadede ölçülebilir şekilde büyütüyoruz.',
+        },
+      ],
+      indicatorLabel: 'Bölüme git',
     },
     showcase: {
       heading: 'Projeler',
@@ -162,9 +187,9 @@ export const siteContent = {
       ],
     },
     codeEditor: {
-      heading: 'İÇ MEKANİZMA BİZDE',
-      description:
-        'Projelerde kullanılan tüm arayüz ve sistem bileşenleri, kendi geliştirme süreçlerimizden geçer. Bu yaklaşım, daha kontrollü, optimize ve ölçeklenebilir ürünler ortaya çıkarır.',
+      heading: 'Sınırları Olmayan Bir Yapı',
+      description: 'Hazır bir siteden, markaya özel bir deneyime.',
+      closingMessage: 'Bu bölüm, sınırsız ihtimallerden yalnızca biri.',
       codeFileName: 'Anasayfa.tsx',
       previewUrl: '/',
       previewLabel: 'localhost:3000',
@@ -172,7 +197,6 @@ export const siteContent = {
       runButton: 'Çalıştır',
       componentsLabel: 'Bileşenler',
       terminalLabel: 'TERMINAL',
-      folderName: 'agenzion-ui-kit',
       buildCommand: '> npm run build',
       compiling: 'i tsc derleniyor...',
       syntaxError: "x TypeScript Hatası: 'Anasayfa.tsx' dosyasında sözdizimi hatası.",
@@ -190,6 +214,41 @@ export const siteContent = {
       showcaseComment: 'Projeler Bölümü',
       codeComment: 'Kod Editörü Bölümü',
       footerComment: 'Footer',
+      legacyEditor: {
+        codeFileName: 'tema-kurulum.php',
+        previewUrl: 'https://agenzion.com/',
+        previewLabel: 'agenzion.com',
+        backToCode: 'Kuruluma Dön',
+        runButton: 'Kur',
+        componentsLabel: 'Kurulum',
+        terminalLabel: 'WORDPRESS CLI',
+        buildCommand: '> wp theme install premium-theme.zip --activate',
+        compiling: 'i WordPress çekirdeği ve tema dosyaları hazırlanıyor...',
+        syntaxError:
+          "x Kurulum Hatası: 'tema-kurulum.php' dosyasında yapılandırma uyuşmazlığı.",
+        buildFailed: '! Kurulum başarısız.',
+        typeCheckSuccess: 'v Tema paketi doğrulandı.',
+        optimizing: 'i Elementor kit ve demo içerik içe aktarılıyor...',
+        buildComplete: 'v Eski yöntem kurulumu tamamlandı (4.2sn)',
+        generatingPreview: 'i Dış site önizlemesi hazırlanıyor...',
+        lineLabel: 'Ln',
+        columnLabel: 'Col',
+        statusLanguage: 'PHP',
+        siteLabel: 'Agenzion Web Studio',
+        themeComment: 'WordPress dosyaları sunucuya yüklenir',
+        pluginComment: 'Veritabanı bağlantısı ve içerik yapısı hazırlanır',
+        contentComment: 'Tema seçilir ve gerekli eklentiler etkinleştirilir',
+        deployComment: 'Kalıcı bağlantılar ayarlanır ve site yayına alınır',
+        installTitle: 'WordPress Tema Kurulumu',
+        installDescription:
+          'Hazır tema, Elementor kiti ve demo içerik klasik yöntemle kurulur; kurulum bitince dış site önizlemesi açılır.',
+        packageLabel: 'Tema Paketi',
+        builderLabel: 'Sayfa Kurucu',
+        hostingLabel: 'Sunucu',
+        progressLabel: 'Kurulum İlerlemesi',
+        readyLabel: 'Hazır',
+        navigationItems: ['Kurulum', 'Görünüm', 'Eklentiler', 'Elementor', 'Araçlar'],
+      },
     },
     contact: {
       homeHeadingLine1: 'PROJENİZE',
@@ -208,6 +267,8 @@ export const siteContent = {
       emailPlaceholder: 'ornek@gmail.com',
       messageLabel: 'Proje Detayları',
       messagePlaceholder: 'Projenizden bahsedin...',
+      errorMessage:
+        'Mesaj şu anda gönderilemedi. Lütfen tekrar deneyin veya info@agenzion.com adresine doğrudan yazın.',
       submittingLabel: 'GÖNDERİLİYOR...',
       submitLabel: 'TEKLİF AL',
       addressLine1:
@@ -218,32 +279,6 @@ export const siteContent = {
       phoneValue: '+90 (540) 455 34 44',
       phoneHint: 'Pzt - Cum / 09:00 - 18:00',
       pageTitle: 'İletişim',
-    },
-    aboutManifesto: {
-      sections: [
-        {
-          title: 'agenzion',
-          text: 'Agenzion, strateji, tasarım ve geliştirmeyi tek akışta buluşturarak markalar için kalıcı dijital deneyimler kurgulayan butik bir web stüdyosudur.',
-        },
-        {
-          title: 'DİJİTALİN MİMARLARI',
-          text: 'Agenzion Web Studio olarak, markanızın dijital evrendeki kalıcı kimliğini inşa ediyoruz. Estetik ve fonksiyonelliği kusursuz bir dengeyle buluşturarak, sıradanlığın ötesine geçen web deneyimleri tasarlıyoruz.',
-        },
-        {
-          title: 'SINIRLARIN ÖTESİNDE',
-          text: 'Her pikselde bir hikaye, her satır kodda bir amaç gizli. Şablonları reddediyor, markanıza özel, yenilikçi ve akılda kalıcı dijital sanat eserleri yaratıyoruz. Bizim için web tasarımı, bir vizyon meselesidir.',
-        },
-        {
-          title: 'GELECEĞİ KODLUYORUZ',
-          text: 'Teknolojinin hızına ayak uydurmakla kalmıyor, ona yön veriyoruz. Agenzion ile dijital dönüşümünüzü başlatın, sektörünüzde her zaman bir adım önde olun ve geleceğin standartlarını bugünden belirleyin.',
-        },
-        {
-          title: 'BİRLİKTE BAŞLAYALIM',
-          text: 'Yeni bir lansman, yeniden konumlanan bir marka ya da sıfırdan kurgulanacak bir dijital deneyim... Net strateji, güçlü tasarım ve çalışan bir ürün için doğru başlangıcı birlikte kuralım.',
-          showsFooter: true,
-        },
-      ],
-      indicatorLabel: 'Bölüme git',
     },
     blog: {
       title: 'Blog',
@@ -267,7 +302,7 @@ export const siteContent = {
       nextArticleLabel: 'Sıradaki Yazı',
     },
     footer: {
-      copyrightName: 'Agenzion Web Stüdyosu',
+      copyrightName: 'Agenzion Web Studio',
     },
     notFound: {
       code: '404',
@@ -280,9 +315,6 @@ export const siteContent = {
       homeTitle: 'Agenzion Web Studio | Performance-Focused Web Design and Development',
       homeDescription:
         'Agenzion is an Istanbul-based boutique web design and development studio combining performance, SEO, and creative interaction.',
-      aboutTitle: 'About | Agenzion Web Studio',
-      aboutDescription:
-        'Agenzion is a boutique web studio bringing strategy, design, motion, and development into a single flow.',
       blogTitle: 'Blog | Agenzion Web Studio',
       blogDescription:
         'Agenzion notes and technical writing on performance, SEO, modern web design, and digital product development.',
@@ -346,7 +378,35 @@ export const siteContent = {
             'We develop software tailored to your workflows and operational model. The result is flexible, manageable infrastructure that integrates cleanly with the systems you already use.',
           gradient: 'from-emerald-600 to-green-400',
         },
+        {
+          id: 5,
+          title: 'Headless E-Commerce',
+          description:
+            'We build robust, scalable e-commerce systems with modern technologies. By balancing design and performance together, we create an architecture that stays sustainable over time.',
+          gradient: 'from-amber-500 to-yellow-300',
+        },
       ],
+    },
+    headlessCommerce: {
+      sections: [
+        {
+          title: 'HEADLESS E-COMMERCE',
+          text: 'With a headless architecture, we connect content, products, and user experience into a single high-speed flow.',
+        },
+        {
+          title: 'SPEED-DRIVEN INFRASTRUCTURE',
+          text: 'By decoupling the storefront from the commerce engine, we build scalable systems that stay fast even during campaign peaks.',
+        },
+        {
+          title: 'EXPERIENCE WITHOUT LIMITS',
+          text: 'We remove template constraints and craft brand-specific shopping journeys, flexible content blocks, and conversion-focused interactions.',
+        },
+        {
+          title: 'SUSTAINABLE GROWTH',
+          text: 'We align analytics, SEO, and performance in one system so your commerce product grows with measurable, long-term momentum.',
+        },
+      ],
+      indicatorLabel: 'Go to section',
     },
     showcase: {
       heading: 'Projects',
@@ -407,9 +467,9 @@ export const siteContent = {
       ],
     },
     codeEditor: {
-      heading: 'THE ENGINE ROOM IS OURS',
-      description:
-        'Every interface and system component used in our projects goes through our own development process. That gives us tighter control, cleaner optimization, and more scalable products.',
+      heading: 'Sınırları Olmayan Bir Yapı',
+      description: 'Hazır bir siteden, markaya özel bir deneyime.',
+      closingMessage: 'Bu bölüm, sınırsız ihtimallerden yalnızca biri.',
       codeFileName: 'Home.tsx',
       previewUrl: '/en',
       previewLabel: 'localhost:3000/en',
@@ -417,7 +477,6 @@ export const siteContent = {
       runButton: 'Run',
       componentsLabel: 'Components',
       terminalLabel: 'TERMINAL',
-      folderName: 'agenzion-ui-kit',
       buildCommand: '> npm run build',
       compiling: 'i compiling tsc...',
       syntaxError: "x TypeScript Error: syntax error in 'Home.tsx'.",
@@ -435,6 +494,41 @@ export const siteContent = {
       showcaseComment: 'Projects Section',
       codeComment: 'Code Editor Section',
       footerComment: 'Footer',
+      legacyEditor: {
+        codeFileName: 'theme-install.php',
+        previewUrl: 'https://agenzion.com/',
+        previewLabel: 'agenzion.com',
+        backToCode: 'Back to Install',
+        runButton: 'Install',
+        componentsLabel: 'Setup',
+        terminalLabel: 'WORDPRESS CLI',
+        buildCommand: '> wp theme install premium-theme.zip --activate',
+        compiling: 'i preparing WordPress core and theme files...',
+        syntaxError:
+          "x Install Error: configuration mismatch in 'theme-install.php'.",
+        buildFailed: '! Install failed.',
+        typeCheckSuccess: 'v Theme package verified.',
+        optimizing: 'i importing Elementor kit and demo content...',
+        buildComplete: 'v Legacy setup completed (4.2s)',
+        generatingPreview: 'i preparing external site preview...',
+        lineLabel: 'Ln',
+        columnLabel: 'Col',
+        statusLanguage: 'PHP',
+        siteLabel: 'Agenzion Web Studio',
+        themeComment: 'WordPress files are uploaded to the server',
+        pluginComment: 'Database connection and content structure are prepared',
+        contentComment: 'The theme is selected and required plugins are enabled',
+        deployComment: 'Permalinks are configured and the site goes live',
+        installTitle: 'WordPress Theme Setup',
+        installDescription:
+          'A ready-made theme, Elementor kit, and demo content are installed through the legacy workflow; the external preview opens when setup finishes.',
+        packageLabel: 'Theme Package',
+        builderLabel: 'Page Builder',
+        hostingLabel: 'Hosting',
+        progressLabel: 'Setup Progress',
+        readyLabel: 'Ready',
+        navigationItems: ['Setup', 'Appearance', 'Plugins', 'Elementor', 'Tools'],
+      },
     },
     contact: {
       homeHeadingLine1: 'LET US START',
@@ -453,6 +547,8 @@ export const siteContent = {
       emailPlaceholder: 'example@email.com',
       messageLabel: 'Project Details',
       messagePlaceholder: 'Tell us about your project...',
+      errorMessage:
+        'Your message could not be sent right now. Please try again or email info@agenzion.com directly.',
       submittingLabel: 'SENDING...',
       submitLabel: 'GET A QUOTE',
       addressLine1:
@@ -463,32 +559,6 @@ export const siteContent = {
       phoneValue: '+90 (540) 455 34 44',
       phoneHint: 'Mon - Fri / 09:00 - 18:00',
       pageTitle: 'Contact',
-    },
-    aboutManifesto: {
-      sections: [
-        {
-          title: 'agenzion',
-          text: 'Agenzion is a boutique web studio that brings strategy, design, and development into a single flow to shape lasting digital experiences for brands.',
-        },
-        {
-          title: 'ARCHITECTS OF DIGITAL',
-          text: 'At Agenzion Web Studio, we build the lasting identity of your brand in the digital universe. By balancing aesthetics and function with precision, we design web experiences that move beyond the ordinary.',
-        },
-        {
-          title: 'BEYOND LIMITS',
-          text: 'Every pixel carries a story and every line of code has intent. We reject templates and craft bold, memorable digital works tailored to your brand. For us, web design is a matter of vision.',
-        },
-        {
-          title: 'WE CODE THE FUTURE',
-          text: 'We do more than keep up with technology. We help shape it. Start your digital transformation with Agenzion, stay ahead of your category, and define tomorrow standards today.',
-        },
-        {
-          title: 'LET US BEGIN',
-          text: 'A new launch, a repositioned brand, or a digital experience built from zero... We can establish the right starting point together with clear strategy, strong design, and a product that works.',
-          showsFooter: true,
-        },
-      ],
-      indicatorLabel: 'Go to section',
     },
     blog: {
       title: 'Blog',
