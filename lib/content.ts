@@ -122,6 +122,23 @@ const blogTranslations: Record<
   string,
   Partial<Record<Locale, Partial<ContentItem>>>
 > = {
+  'ai-destekli-seo-icerik-stratejisi': {
+    en: {
+      slug: 'ai-powered-seo-content-strategy',
+      title: 'AI-Powered SEO Content Strategy: A Roadmap for a More Visible Website',
+      description:
+        'A practical SEO guide for using AI content while aligning search intent, technical structure, and a credible brand voice.',
+      content:
+        '<p>AI-powered content creation is not just about writing faster. Used well, it becomes a growth system that clarifies search intent, protects brand voice, and works with the technical SEO structure of a website.</p><h2>1. Focus on search intent, not only the topic</h2><p>A strong blog post is planned around the problem a user wants to solve, not around a single keyword. Before writing, define whether the reader wants to learn, compare options, or make a buying decision.</p><h2>2. Strengthen AI output with brand expertise</h2><p>AI can produce a useful first draft, but the real value appears when you add your company’s experience, examples, and point of view. Short industry scenarios, process notes, and decision criteria make the content distinctive.</p><h2>3. Keep technical structure close to content</h2><p>Heading hierarchy, description copy, readable URLs, fast-loading visuals, and internal links are core parts of SEO performance. Before publishing, every article should have one clear purpose, a useful summary, and a clear next step.</p><h2>4. Turn visuals into SEO assets</h2><p>Original visuals that match the topic improve how the article is perceived. File names, alt text, and the way an image is used in context all help search engines and users understand what the content is about.</p><h2>5. Measure and refresh after publishing</h2><p>SEO is not a one-time publishing task. Titles that get impressions but few clicks, pages that are read without producing leads, and outdated information should be reviewed and improved regularly.</p><p>In short, AI is a strong assistant that speeds up SEO work; it does not replace strategy. The best results come from combining AI production with real expertise, solid web infrastructure, and consistent performance tracking.</p>',
+      category: 'SEO',
+      readingTime: '5 min read',
+      author: {
+        name: 'Agenzion Web Studio',
+        role: 'Web Design and SEO Team',
+        image: '/images/logo-koyu.png',
+      },
+    },
+  },
   'placeholder-blog': {
     en: {
       slug: 'sanity-content-coming-soon',

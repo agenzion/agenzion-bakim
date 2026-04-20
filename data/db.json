@@ -13,6 +13,23 @@
   ],
   "blog": [
     {
+      "id": "ai-destekli-seo-icerik-stratejisi",
+      "slug": "ai-destekli-seo-icerik-stratejisi",
+      "title": "AI Destekli SEO İçerik Stratejisi: Daha Görünür Bir Web Sitesi İçin Yol Haritası",
+      "description": "AI ile içerik üretirken arama niyetini, teknik yapıyı ve güvenilir marka sesini birlikte yöneten pratik bir SEO rehberi.",
+      "content": "<p>AI destekli içerik üretimi, yalnızca daha hızlı yazı yazmak anlamına gelmez. Doğru kullanıldığında arama niyetini netleştiren, marka dilini koruyan ve web sitesinin teknik SEO yapısıyla uyumlu çalışan bir büyüme sistemine dönüşür.</p><h2>1. Konuya değil, arama niyetine odaklanın</h2><p>Başarılı bir blog yazısı tek bir anahtar kelime etrafında değil, kullanıcının çözmek istediği sorun etrafında planlanır. İçeriğe başlamadan önce hedef okuyucunun ne öğrenmek, karşılaştırmak veya satın almak istediğini netleştirin.</p><h2>2. AI çıktısını marka uzmanlığıyla güçlendirin</h2><p>AI iyi bir ilk taslak çıkarabilir; fakat gerçek değer, işletmenin deneyimini, örneklerini ve net bakış açısını eklediğinizde oluşur. Hizmet verdiğiniz sektörlerden kısa senaryolar, süreç notları ve karar kriterleri metni benzersiz kılar.</p><h2>3. Teknik yapıyı içerikten ayrı düşünmeyin</h2><p>Başlık hiyerarşisi, açıklama metni, okunabilir URL, hızlı yüklenen görseller ve iç linkler SEO performansının temel parçalarıdır. Yayınlamadan önce her yazının tek bir ana amacı, açıklayıcı bir meta özeti ve net bir sonraki adımı olmalıdır.</p><h2>4. Görseli de SEO varlığına dönüştürün</h2><p>Konu ile uyumlu özgün görseller, yazının algısını güçlendirir. Görsel dosya adı, alternatif metin ve bağlam içindeki kullanım şekli, içeriğin ne anlattığını arama motorlarına ve kullanıcılara daha açık hale getirir.</p><h2>5. Yayından sonra ölçün ve güncelleyin</h2><p>SEO tek seferlik bir yayın işi değildir. Gösterim alan fakat tıklama almayan başlıklar, okunup dönüşüm üretmeyen sayfalar ve eskiyen bilgiler düzenli aralıklarla güncellenmelidir.</p><p>Sonuç olarak AI, SEO sürecini hızlandıran güçlü bir yardımcıdır; stratejinin yerini almaz. En iyi sonuç, AI üretimini gerçek uzmanlık, sağlam web altyapısı ve düzenli performans takibiyle birleştiren markalarda ortaya çıkar.</p>",
+      "image": "https://cdn.sanity.io/images/03ibs86g/production/a45c9cf98f70cd47920dde152c7a0124eb1c5593-1376x768.jpg",
+      "date": "2026-04-20",
+      "category": "SEO",
+      "author": {
+        "name": "Agenzion Web Studio",
+        "role": "Web Tasarım ve SEO Ekibi",
+        "image": "/images/logo-koyu.png"
+      },
+      "tags": ["SEO", "AI içerik", "Web tasarım", "İçerik stratejisi"],
+      "readingTime": "5 dk"
+    },
+    {
       "id": "placeholder-blog",
       "slug": "sanity-icerikleri-yakinda",
       "title": "Sanity İçerikleri Yakında",
