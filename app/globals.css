@@ -5,8 +5,14 @@
 }
 
 @layer base {
+  html {
+    background: #020205;
+    color-scheme: dark;
+  }
+
   body {
     @apply font-sans;
+    background: #020205;
   }
 }
 
@@ -40,6 +46,22 @@
 
 .animate-gradient-x {
   animation: gradient-x 3s ease infinite;
+}
+
+.hero-sticky-viewport {
+  height: 100svh;
+}
+
+@supports (height: 100dvh) {
+  .hero-sticky-viewport {
+    height: 100dvh;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-sticky-viewport {
+    height: 100vh;
+  }
 }
 
 @keyframes space-sky-twinkle {

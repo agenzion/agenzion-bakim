@@ -119,9 +119,9 @@ const Hero: React.FC<{
       {/* Sticky Viewport */}
       <motion.div
         style={{ backgroundColor }}
-        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center z-10 transition-colors duration-0"
+        className="hero-sticky-viewport sticky top-0 w-full overflow-hidden flex items-center justify-center z-10 transition-colors duration-0"
       >
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-10 px-5 pt-12 md:flex-row md:justify-between md:gap-0 md:px-24 md:pt-0">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-10 px-5 pt-0 md:flex-row md:justify-between md:gap-0 md:px-24">
           {/* Text Content */}
           <div className="relative z-40 hidden w-full items-center justify-center pointer-events-none md:flex md:w-1/2 md:justify-start">
             <div className="relative flex h-[120px] w-full items-center justify-center md:h-[400px] md:justify-start">

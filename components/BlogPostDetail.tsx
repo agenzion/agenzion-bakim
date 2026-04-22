@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, ChevronLeft, Share2, User } from 'lucide-react';
+import { Calendar, ChevronLeft } from 'lucide-react';
 
+import BlogShareButton from '@/components/BlogShareButton';
 import type { ContentItem } from '@/lib/db';
 import { getSafeImageSrc, isRemoteImageSrc } from '@/lib/image';
 import { type Locale, getLocalizedPath } from '@/lib/i18n';
@@ -13,14 +14,11 @@ interface BlogPostDetailProps {
     shareLabel: string;
     backLabel: string;
     allPostsLabel: string;
-    tagsLabel: string;
     categoryFallback: string;
     shortReadLabel: string;
     readSuffix: string;
     unspecifiedDate: string;
     noImage: string;
-    teamLabel: string;
-    authorFallback: string;
     nextArticleLabel: string;
   };
   nextPostTitle?: string | null;
@@ -51,9 +49,9 @@ export default function BlogPostDetail({
   nextPostTitle,
 }: BlogPostDetailProps) {
   const blogHref = getLocalizedPath(locale, 'blog');
-  const authorName = post.author?.name || copy.teamLabel;
-  const authorImageSrc = getSafeImageSrc(post.author?.image);
   const postImageSrc = getSafeImageSrc(post.image);
+  const formattedDate = formatBlogDate(post.date, locale, copy.unspecifiedDate);
+  const tags = post.tags?.filter(Boolean) || [];
 
   return (
     <article className="relative z-10 mx-auto max-w-4xl px-6 pb-20 pt-32 text-white">
@@ -66,13 +64,7 @@ export default function BlogPostDetail({
           {copy.backLabel}
         </Link>
         <div className="flex items-center gap-4">
-          <button
-            type="button"
-            aria-label={copy.shareLabel}
-            className="rounded-full border border-white/10 bg-white/5 p-2 text-white/70 backdrop-blur-xl transition-all hover:border-white/20 hover:bg-white hover:text-[#020205]"
-          >
-            <Share2 size={18} />
-          </button>
+          <BlogShareButton label={copy.shareLabel} title={post.title} text={post.description} />
         </div>
       </div>
 
@@ -86,7 +78,7 @@ export default function BlogPostDetail({
           </span>
         </div>
 
-        <h1 className="brand-font mb-8 text-5xl leading-[0.9] font-black tracking-tighter md:text-7xl">
+        <h1 className="brand-font mb-8 text-5xl leading-[0.98] font-black tracking-tighter md:text-7xl md:leading-[0.94]">
           {post.title}
         </h1>
 
@@ -94,37 +86,24 @@ export default function BlogPostDetail({
           {post.description}
         </p>
 
-        <div className="flex flex-wrap items-center gap-8 border-y border-white/10 py-8">
-          <div className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
-              {authorImageSrc ? (
-                <Image
-                  src={authorImageSrc}
-                  alt={authorName}
-                  fill
-                  sizes="48px"
-                  unoptimized={isRemoteImageSrc(authorImageSrc)}
-                  className="object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-white/5">
-                  <User size={24} className="text-white/45" />
-                </div>
-              )}
-            </div>
-            <div>
-              <div className="text-sm font-bold">{authorName}</div>
-              <div className="text-[10px] uppercase tracking-wider text-white/50">
-                {post.author?.role || copy.authorFallback}
-              </div>
-            </div>
-          </div>
-
+        <div className="flex flex-col gap-5 border-y border-white/10 py-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-sm text-white/60">
             <Calendar size={16} />
-            <span>{formatBlogDate(post.date, locale, copy.unspecifiedDate)}</span>
+            <span>{formattedDate}</span>
           </div>
+
+          {tags.length ? (
+            <div className="flex w-full flex-wrap justify-end gap-2 sm:w-auto sm:max-w-[60%]">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-left text-[11px] font-medium text-white/82 backdrop-blur-xl"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -147,58 +126,19 @@ export default function BlogPostDetail({
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_200px]">
-        <div
-          className="prose prose-xl prose-invert max-w-none
-            prose-headings:brand-font prose-headings:leading-none prose-headings:tracking-tighter prose-headings:text-white
-            prose-h2:mt-16 prose-h2:mb-8 prose-h2:text-4xl
-            prose-p:text-lg prose-p:leading-relaxed prose-p:text-white/78
+      <div
+        className="prose prose-xl prose-invert max-w-none
+            prose-headings:font-black prose-headings:leading-tight prose-headings:tracking-normal prose-headings:text-white
+            prose-h2:mt-14 prose-h2:mb-5 prose-h2:text-3xl prose-h2:leading-[1.18] md:prose-h2:mt-16 md:prose-h2:text-[2rem]
+            prose-h3:mt-10 prose-h3:mb-4 prose-h3:text-2xl prose-h3:leading-snug md:prose-h3:text-[1.7rem]
+            prose-p:my-6 prose-p:text-lg prose-p:leading-[1.85] prose-p:text-white/78
             prose-a:text-orange-200
             prose-strong:text-white
-            prose-blockquote:my-12 prose-blockquote:border-l-4 prose-blockquote:border-orange-300/70 prose-blockquote:py-4 prose-blockquote:text-2xl prose-blockquote:text-white prose-blockquote:italic
-            prose-ul:list-disc prose-ul:pl-6
+            prose-blockquote:my-12 prose-blockquote:border-l-4 prose-blockquote:border-orange-300/70 prose-blockquote:py-4 prose-blockquote:text-2xl prose-blockquote:leading-relaxed prose-blockquote:text-white prose-blockquote:italic
+            prose-ul:my-6 prose-ul:list-disc prose-ul:pl-6
             prose-li:mb-2 prose-li:text-lg prose-li:text-white/76"
-          dangerouslySetInnerHTML={{ __html: post.content || '' }}
-        />
-
-        <aside className="space-y-12">
-          <div>
-            <h3 className="mb-6 text-xs font-bold uppercase tracking-widest text-white/30">
-              {copy.tagsLabel}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {post.tags?.map((tag) => (
-                <span
-                  key={tag}
-                  className="cursor-pointer rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/82 backdrop-blur-xl transition-colors hover:bg-white hover:text-[#020205]"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-widest">
-              {copy.shareLabel}
-            </h3>
-            <div className="flex gap-4">
-              <button
-                type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all hover:bg-white hover:text-[#020205]"
-              >
-                <span className="text-[10px] font-bold">TW</span>
-              </button>
-              <button
-                type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all hover:bg-white hover:text-[#020205]"
-              >
-                <span className="text-[10px] font-bold">LI</span>
-              </button>
-            </div>
-          </div>
-        </aside>
-      </div>
+        dangerouslySetInnerHTML={{ __html: post.content || '' }}
+      />
 
       <footer className="mt-24 border-t border-white/10 pt-12">
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">

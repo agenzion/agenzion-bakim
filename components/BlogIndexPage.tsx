@@ -51,7 +51,7 @@ export default function BlogIndexPage({
   return (
     <main lang={locale} className="relative min-h-screen overflow-hidden bg-transparent text-white">
       <Navbar dark locale={locale} alternatePath={alternatePath} copy={navigation} />
-      <div className="relative z-10 pt-40 pb-20 px-6 md:px-8 max-w-7xl mx-auto">
+      <div className="relative z-10 px-6 pt-40 pb-20 md:px-8 max-w-7xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

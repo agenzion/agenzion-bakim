@@ -8,6 +8,7 @@ export interface ContentItem {
   content?: string;
   image: string;
   date?: string;
+  order?: number;
   category?: string;
   label?: string;
   reviewUrl?: string;

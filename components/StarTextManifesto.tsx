@@ -288,18 +288,46 @@ const getBaseFontSize = (text: string, width: number) => {
   return 80;
 };
 
+const getTitleLetterSpacing = (width: number) => {
+  if (width < MOBILE_BREAKPOINT) return 2;
+  if (width < TABLET_BREAKPOINT) return 3;
+  return TITLE_LETTER_SPACING_PX;
+};
+
+const getTitleMaxWidth = (width: number) => {
+  if (width < MOBILE_BREAKPOINT) {
+    return Math.max(248, width - 72);
+  }
+
+  if (width < TABLET_BREAKPOINT) {
+    return width * 0.78;
+  }
+
+  return width * 0.84;
+};
+
+const getMeasuredTitleWidth = (
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  letterSpacing: number,
+) => {
+  return ctx.measureText(text).width + Math.max(0, Array.from(text).length - 1) * letterSpacing;
+};
+
 const fitFontSize = (
   ctx: CanvasRenderingContext2D,
   text: string,
   width: number,
 ) => {
   let fontSize = getBaseFontSize(text, width);
-  const maxWidth = width * 0.84;
+  const minFontSize = width < MOBILE_BREAKPOINT ? 16 : 20;
+  const maxWidth = getTitleMaxWidth(width);
+  const letterSpacing = getTitleLetterSpacing(width);
 
-  while (fontSize > 20) {
+  while (fontSize > minFontSize) {
     ctx.font = `800 ${fontSize}px Outfit, system-ui, sans-serif`;
 
-    if (ctx.measureText(text).width <= maxWidth) {
+    if (getMeasuredTitleWidth(ctx, text, letterSpacing) <= maxWidth) {
       return fontSize;
     }
 
@@ -312,6 +340,7 @@ const fitFontSize = (
 const applyTitleTypography = (
   ctx: CanvasRenderingContext2D,
   fontSize: number,
+  width: number,
 ) => {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -320,7 +349,7 @@ const applyTitleTypography = (
   const letterSpacingContext = ctx as CanvasRenderingContext2D & {
     letterSpacing?: string;
   };
-  letterSpacingContext.letterSpacing = `${TITLE_LETTER_SPACING_PX}px`;
+  letterSpacingContext.letterSpacing = `${getTitleLetterSpacing(width)}px`;
 };
 
 const getTitleOffsetY = (hasDescription: boolean, width: number) => {
@@ -519,7 +548,7 @@ export default function StarTextManifesto({
       offCtx.fillStyle = "white";
 
       const fontSize = fitFontSize(offCtx, title, width);
-      applyTitleTypography(offCtx, fontSize);
+      applyTitleTypography(offCtx, fontSize, width);
       offCtx.fillText(
         title,
         width / 2,
@@ -754,7 +783,7 @@ export default function StarTextManifesto({
       const fontSize =
         titleFontSizes[activeSection] ?? getBaseFontSize(section.title, width);
 
-      applyTitleTypography(ctx, fontSize);
+      applyTitleTypography(ctx, fontSize, width);
       ctx.fillStyle = "rgba(255,255,255,0.16)";
 
       const centerX = width / 2;

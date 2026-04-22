@@ -228,7 +228,7 @@ const SpaceRouteBackground = () => {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#020205]"
+      className="pointer-events-none fixed left-0 top-0 z-0 h-screen w-full overflow-hidden bg-[#020205] [height:100lvh]"
     >
       <motion.div
         className="absolute inset-y-0 left-0"

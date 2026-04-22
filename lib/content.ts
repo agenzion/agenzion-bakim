@@ -44,7 +44,7 @@ const PUBLIC_CONTENT_QUERY = /* groq */ `
     "color": coalesce(color, "#06B6D4"),
     "tags": coalesce(tags, [])
   },
-  "blog": *[_type == "blogPost" && enabled != false] | order(publishedAt desc, order asc, _createdAt desc) {
+  "blog": *[_type == "blogPost" && enabled != false] | order(order desc, publishedAt desc, _createdAt desc) {
     "id": coalesce(id, _id),
     "slug": select($locale == "en" => coalesce(slug.en, slug.tr), coalesce(slug.tr, slug.en)),
     "title": select($locale == "en" => coalesce(title.en, title.tr), coalesce(title.tr, title.en)),
@@ -58,6 +58,7 @@ const PUBLIC_CONTENT_QUERY = /* groq */ `
     ),
     "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
     "date": publishedAt,
+    "order": order,
     "category": select($locale == "en" => coalesce(category.en, category.tr), coalesce(category.tr, category.en)),
     author {
       name,
@@ -88,6 +89,7 @@ const BLOG_ENTRY_QUERY = /* groq */ `
       "content": coalesce(bodyHtml.tr, bodyHtml.en),
       "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
       "date": publishedAt,
+      "order": order,
       "category": coalesce(category.tr, category.en),
       author {
         name,
@@ -105,6 +107,7 @@ const BLOG_ENTRY_QUERY = /* groq */ `
       "content": coalesce(bodyHtml.en, bodyHtml.tr),
       "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
       "date": publishedAt,
+      "order": order,
       "category": coalesce(category.en, category.tr),
       author {
         name,
@@ -229,6 +232,41 @@ function localizeBlogPost(post: ContentItem, locale: Locale): LocalizedBlogPost 
   };
 }
 
+function getBlogPostOrder(post: ContentItem) {
+  return typeof post.order === 'number' && Number.isFinite(post.order)
+    ? post.order
+    : Number.NEGATIVE_INFINITY;
+}
+
+function getBlogPostDateTimestamp(post: ContentItem) {
+  if (!post.date) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const timestamp = new Date(post.date).getTime();
+  return Number.isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
+}
+
+function sortBlogPosts<T extends ContentItem>(posts: T[]) {
+  return [...posts].sort((a, b) => {
+    const orderA = getBlogPostOrder(a);
+    const orderB = getBlogPostOrder(b);
+
+    if (orderA !== orderB) {
+      return orderB - orderA;
+    }
+
+    const dateA = getBlogPostDateTimestamp(a);
+    const dateB = getBlogPostDateTimestamp(b);
+
+    if (dateA !== dateB) {
+      return dateB - dateA;
+    }
+
+    return 0;
+  });
+}
+
 function normalizeAppData(data: AppData): AppData {
   return {
     concepts: Array.isArray(data.concepts) ? data.concepts : [],
@@ -312,7 +350,7 @@ export async function getLocalizedBlogEntry(locale: Locale, slug: string) {
 
 export async function getLocalizedBlogPosts(locale: Locale) {
   const db = await getPublicContent(locale);
-  return db.blog.filter((post): post is LocalizedBlogPost => Boolean(post.slug));
+  return sortBlogPosts(db.blog.filter((post): post is LocalizedBlogPost => Boolean(post.slug)));
 }
 
 export async function getLocalizedBlogPostBySlug(locale: Locale, slug: string) {

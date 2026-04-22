@@ -1,6 +1,5 @@
-import type {Metadata} from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Outfit } from 'next/font/google';
-import ScrollToTopButton from '@/components/ScrollToTopButton';
 import SpaceRouteBackground from '@/components/SpaceRouteBackground';
 import { absoluteUrl, getSiteSettings, siteConfig } from '@/lib/site';
 import './globals.css';
@@ -9,6 +8,13 @@ const outfit = Outfit({
   subsets: ['latin'],
   variable: '--font-outfit',
 });
+
+const browserChromeColor = '#020205';
+
+export const viewport: Viewport = {
+  themeColor: browserChromeColor,
+  colorScheme: 'dark',
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -153,7 +159,7 @@ async function RootLayoutContent({
 
   return (
     <html lang="tr" className={`${outfit.variable}`}>
-      <body suppressHydrationWarning className="relative isolate font-sans antialiased bg-[#F5F5F3] selection:bg-black selection:text-white">
+      <body suppressHydrationWarning className="relative isolate bg-[#020205] font-sans antialiased selection:bg-black selection:text-white">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -164,7 +170,6 @@ async function RootLayoutContent({
         <div className="relative z-10">
           {children}
         </div>
-        <ScrollToTopButton />
       </body>
     </html>
   );

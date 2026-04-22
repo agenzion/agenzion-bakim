@@ -432,7 +432,7 @@ const VersusMark = () => (
   >
     <div className="relative h-32 w-32 xl:h-52 xl:w-28">
       <svg
-        className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+        className="pointer-events-none absolute inset-0 hidden h-full w-full overflow-visible xl:block"
         viewBox="0 0 128 208"
         fill="none"
         preserveAspectRatio="xMidYMid meet"
@@ -479,12 +479,20 @@ const VersusMark = () => (
           transition={{ duration: 1.15, delay: 0.15, ease: 'easeOut' }}
         />
       </svg>
+      <motion.div
+        aria-hidden="true"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, amount: 0.75 }}
+        transition={{ duration: 0.5, delay: 0.22, ease: 'easeOut' }}
+        className="absolute left-1/2 top-1/2 z-10 h-20 w-[3px] -translate-x-1/2 -translate-y-1/2 rotate-[12deg] rounded-full bg-[linear-gradient(180deg,rgba(69,146,175,0.35)_0%,rgba(255,255,255,0.96)_45%,rgba(227,196,168,0.35)_100%)] shadow-[0_0_18px_rgba(255,255,255,0.58)] xl:hidden"
+      />
       <motion.span
         initial={{ opacity: 0, x: -16, y: 8, scale: 0.9, filter: 'blur(8px)' }}
         whileInView={{ opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }}
         viewport={{ once: true, amount: 0.8 }}
         transition={{ duration: 0.6, delay: 0.32, ease: 'easeOut' }}
-        className="absolute left-4 top-1/2 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:left-0 xl:text-6xl"
+        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:left-0 xl:text-6xl"
         style={{ textShadow: '0 0 18px rgba(255,255,255,0.45)' }}
       >
         V
@@ -494,7 +502,7 @@ const VersusMark = () => (
         whileInView={{ opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }}
         viewport={{ once: true, amount: 0.8 }}
         transition={{ duration: 0.6, delay: 0.42, ease: 'easeOut' }}
-        className="absolute right-4 top-1/2 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:right-0 xl:text-6xl"
+        className="absolute right-4 top-1/2 z-20 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:right-0 xl:text-6xl"
         style={{ textShadow: '0 0 18px rgba(255,255,255,0.45)' }}
       >
         S
