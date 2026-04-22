@@ -18,15 +18,6 @@ type LocalizedBlogEntry = {
   base: ContentItem;
   localizations: Record<Locale, LocalizedBlogPost>;
 };
-type ShowcaseProjectSource = Omit<Partial<ContentItem>, 'id'> & {
-  id?: string | number;
-  _key?: string;
-  img?: string;
-};
-type SanityShowcaseProjects = {
-  documentProjects?: ShowcaseProjectSource[];
-  staticProjects?: ShowcaseProjectSource[];
-};
 
 const showcaseColorPalette = ['#06b6d4', '#ef4444', '#8b5cf6', '#3b82f6', '#f59e0b'];
 
@@ -130,43 +121,6 @@ const BLOG_ENTRY_QUERY = /* groq */ `
 }
 `;
 
-const SHOWCASE_PROJECTS_QUERY = /* groq */ `
-{
-  "documentProjects": *[_type == "project" && enabled != false] | order(order asc, _createdAt asc) {
-    "id": coalesce(id, _id),
-    "title": select($locale == "en" => coalesce(title.en, title.tr), coalesce(title.tr, title.en)),
-    "description": select(
-      $locale == "en" => coalesce(description.en, description.tr),
-      coalesce(description.tr, description.en)
-    ),
-    "label": select(
-      $locale == "en" => coalesce(label.en, category.en, label.tr, category.tr),
-      coalesce(label.tr, category.tr, label.en, category.en)
-    ),
-    "category": select(
-      $locale == "en" => coalesce(category.en, label.en, category.tr, label.tr),
-      coalesce(category.tr, label.tr, category.en, label.en)
-    ),
-    "image": coalesce(image.asset->url, imagePath, "/images/project-placeholder.jpg"),
-    reviewUrl,
-    "color": coalesce(color, "#06B6D4"),
-    "tags": coalesce(tags, [])
-  },
-  "staticProjects": *[_type == "siteContent" && language == $locale][0].showcase.projects[] {
-    _key,
-    id,
-    title,
-    description,
-    "label": category,
-    category,
-    "image": img,
-    "img": img,
-    "color": coalesce(color, "#06B6D4"),
-    "tags": coalesce(tags, [])
-  }
-}
-`;
-
 const blogTranslations: Record<
   string,
   Partial<Record<Locale, Partial<ContentItem>>>
@@ -239,36 +193,24 @@ function getDefaultProjectLabel(locale: Locale) {
   return locale === 'en' ? 'Project' : 'Proje';
 }
 
-function isPlaceholderProject(project: ShowcaseProjectSource) {
-  return String(project.id || '') === 'placeholder-project';
-}
-
-function localizeProjectSource(project: ShowcaseProjectSource, locale: Locale): ShowcaseProjectSource {
-  const translation = project.id ? projectTranslations[String(project.id)]?.[locale] : undefined;
-
-  return translation ? { ...project, ...translation } : project;
-}
-
 function normalizeShowcaseProject(
-  project: ShowcaseProjectSource,
+  project: Partial<ContentItem>,
   index: number,
   locale: Locale
 ): ShowcaseProject {
-  const localizedProject = localizeProjectSource(project, locale);
-  const title = localizedProject.title?.trim() || `${getDefaultProjectLabel(locale)} ${index + 1}`;
-  const label =
-    localizedProject.label?.trim() || localizedProject.category?.trim() || getDefaultProjectLabel(locale);
-  const description = localizedProject.description?.trim() || '';
-  const image = localizedProject.image?.trim() || localizedProject.img?.trim() || '/images/project-placeholder.jpg';
+  const title = project.title?.trim() || `${getDefaultProjectLabel(locale)} ${index + 1}`;
+  const label = project.label?.trim() || project.category?.trim() || getDefaultProjectLabel(locale);
+  const description = project.description?.trim() || '';
+  const image = project.image?.trim() || '/images/project-placeholder.jpg';
   const reviewUrl = project.reviewUrl?.trim() || undefined;
 
   return {
-    id: String(localizedProject.id || localizedProject._key || index + 1),
+    id: String(project.id || index + 1),
     title,
     label,
     description,
     img: image,
-    color: localizedProject.color?.trim() || showcaseColorPalette[index % showcaseColorPalette.length],
+    color: project.color?.trim() || showcaseColorPalette[index % showcaseColorPalette.length],
     reviewUrl,
   };
 }
@@ -359,28 +301,6 @@ async function getSanityPublicContent(locale: Locale): Promise<AppData | null> {
   return normalizeAppData(data);
 }
 
-async function getSanityShowcaseProjects(locale: Locale): Promise<ShowcaseProjectSource[] | null> {
-  const data = await sanityFetch<SanityShowcaseProjects>(SHOWCASE_PROJECTS_QUERY, { locale });
-
-  if (!data) {
-    return null;
-  }
-
-  const documentProjects = Array.isArray(data.documentProjects) ? data.documentProjects : [];
-  const staticProjects = Array.isArray(data.staticProjects) ? data.staticProjects : [];
-  const publishedProjects = documentProjects.filter((project) => !isPlaceholderProject(project));
-
-  if (publishedProjects.length > 0) {
-    return publishedProjects;
-  }
-
-  if (staticProjects.length > 0) {
-    return staticProjects;
-  }
-
-  return documentProjects.length > 0 ? documentProjects : null;
-}
-
 async function getSanityLocalizedBlogEntry(
   locale: Locale,
   slug: string
@@ -406,13 +326,8 @@ export async function getPublicContent(locale: Locale): Promise<AppData> {
 }
 
 export async function getHomepageShowcaseProjects(locale: Locale): Promise<ShowcaseProject[]> {
-  const sanityProjects = await getSanityShowcaseProjects(locale);
+  const db = await getPublicContent(locale);
 
-  if (sanityProjects) {
-    return sanityProjects.map((project, index) => normalizeShowcaseProject(project, index, locale));
-  }
-
-  const db = await getLocalPublicContent(locale);
   return db.portfolio.map((project, index) => normalizeShowcaseProject(project, index, locale));
 }
 
