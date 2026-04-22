@@ -8,11 +8,19 @@
   html {
     background: #020205;
     color-scheme: dark;
+    min-height: 100%;
   }
 
   body {
     @apply font-sans;
     background: #020205;
+    min-height: 100svh;
+  }
+}
+
+@supports (min-height: 100dvh) {
+  body {
+    min-height: 100dvh;
   }
 }
 

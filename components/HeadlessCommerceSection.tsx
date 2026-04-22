@@ -86,7 +86,7 @@ const HeadlessCommerceSection = ({
     <section className="relative z-20 min-h-[100dvh] overflow-visible bg-transparent">
       <div aria-hidden="true" className="pointer-events-none sticky top-0 h-[100dvh] w-full">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#020205_0%,#040712_38%,#070a17_74%,#05070f_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#020205_0%,#040712_38%,#070a17_74%,#020205_100%)]" />
           <CosmicBackground masked />
         </div>
 

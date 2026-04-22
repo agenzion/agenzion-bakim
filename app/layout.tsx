@@ -14,6 +14,7 @@ const browserChromeColor = '#020205';
 export const viewport: Viewport = {
   themeColor: browserChromeColor,
   colorScheme: 'dark',
+  viewportFit: 'cover',
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,6 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: settings.description,
     applicationName: settings.name,
+    appleWebApp: {
+      capable: true,
+      title: settings.name,
+      statusBarStyle: 'black-translucent',
+    },
     authors: [{ name: settings.name, url: settings.url }],
     creator: settings.name,
     publisher: settings.name,

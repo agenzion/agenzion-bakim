@@ -42,7 +42,7 @@ export default async function Home() {
   });
 
   return (
-    <main lang="tr" className="w-full min-h-screen bg-[#F5F5F3]">
+    <main lang="tr" className="w-full min-h-screen bg-[#020205]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -67,7 +67,7 @@ export default async function Home() {
           footerCopy={content.footer}
         />
       </section>
-      <div className="bg-neutral-950">
+      <div className="bg-[#020205]">
         <Showcase
           heading={content.showcase.heading}
           voyagerLabel={content.showcase.voyagerLabel}

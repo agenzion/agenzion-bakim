@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-
-import { siteConfig } from '@/lib/site';
+import nodemailer from 'nodemailer';
 
 export const runtime = 'nodejs';
 
-const RESEND_API_URL = 'https://api.resend.com/emails';
+const DEFAULT_CONTACT_RECIPIENT = 'studio@agenzion.com';
 const MAX_NAME_LENGTH = 120;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_MESSAGE_LENGTH = 5000;
@@ -45,13 +44,23 @@ function formatSubmittedAt(date: Date) {
   }).format(date);
 }
 
-export async function POST(request: Request) {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const sender = process.env.CONTACT_FORM_FROM;
-  const recipient = process.env.CONTACT_FORM_TO ?? siteConfig.email;
+function parseSmtpPort(value: string | undefined) {
+  const port = Number.parseInt(value ?? '465', 10);
 
-  if (!resendApiKey || !sender) {
-    console.error('Contact form mail service is not configured. Missing RESEND_API_KEY or CONTACT_FORM_FROM.');
+  return Number.isFinite(port) ? port : 465;
+}
+
+export async function POST(request: Request) {
+  const smtpHost = process.env.CONTACT_SMTP_HOST;
+  const smtpPort = parseSmtpPort(process.env.CONTACT_SMTP_PORT);
+  const smtpUser = process.env.CONTACT_SMTP_USER;
+  const smtpPass = process.env.CONTACT_SMTP_PASS;
+  const smtpSecure = (process.env.CONTACT_SMTP_SECURE ?? 'true') !== 'false';
+  const sender = process.env.CONTACT_FORM_FROM ?? (smtpUser ? `Agenzion Web Studio <${smtpUser}>` : undefined);
+  const recipient = process.env.CONTACT_FORM_TO ?? DEFAULT_CONTACT_RECIPIENT;
+
+  if (!smtpHost || !smtpUser || !smtpPass || !sender) {
+    console.error('Contact form mail service is not configured. Missing SMTP environment variables.');
     return NextResponse.json(
       { error: 'Mail service is not configured.' },
       { status: 500 },
@@ -130,35 +139,28 @@ export async function POST(request: Request) {
   `.trim();
 
   try {
-    const resendResponse = await fetch(RESEND_API_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
       },
-      body: JSON.stringify({
-        from: sender,
-        to: [recipient],
-        reply_to: email,
-        subject,
-        text,
-        html,
-      }),
     });
 
-    if (!resendResponse.ok) {
-      const errorDetails = await resendResponse.text();
-      console.error('Contact form email send failed:', errorDetails);
-
-      return NextResponse.json(
-        { error: 'Unable to send email.' },
-        { status: 502 },
-      );
-    }
+    await transporter.sendMail({
+      from: sender,
+      to: recipient,
+      replyTo: email,
+      subject,
+      text,
+      html,
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error('Contact form request to mail provider failed:', error);
+    console.error('Contact form SMTP send failed:', error);
 
     return NextResponse.json(
       { error: 'Unable to send email.' },

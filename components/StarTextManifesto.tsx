@@ -27,9 +27,13 @@ type ChangeSectionOptions = {
 };
 
 const TRANSITION_LOCK_MS = 2000;
+const WHEEL_DELTA_THRESHOLD = 36;
+const TOUCH_DELTA_THRESHOLD = 50;
 const MOBILE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;
 const TITLE_LETTER_SPACING_PX = 4;
+const TITLE_BREAK_TAG_PATTERN = /<br\s*\/?>/gi;
+const TITLE_TAG_PATTERN = /<[^>]+>/g;
 const TITLE_POINT_CONFIG = {
   mobile: {
     gap: 2,
@@ -122,6 +126,57 @@ const shuffle = <T,>(items: T[]) => {
   }
 
   return clone;
+};
+
+const decodeTitleEntities = (text: string) => {
+  return text
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'");
+};
+
+const getPlainTitle = (title: string) => {
+  return decodeTitleEntities(
+    title
+      .replace(TITLE_BREAK_TAG_PATTERN, " ")
+      .replace(TITLE_TAG_PATTERN, ""),
+  )
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const getExplicitTitleLines = (title: string) => {
+  return title
+    .replace(TITLE_BREAK_TAG_PATTERN, "\n")
+    .split(/\n+/)
+    .map((line) =>
+      decodeTitleEntities(line.replace(TITLE_TAG_PATTERN, ""))
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean);
+};
+
+const getTitleLines = (title: string, width: number) => {
+  const plainTitle = getPlainTitle(title);
+
+  if (!plainTitle) {
+    return [];
+  }
+
+  if (width < MOBILE_BREAKPOINT) {
+    const hasManualBreaks = /<br\s*\/?>/i.test(title) || title.includes("\n");
+    const explicitLines = getExplicitTitleLines(title);
+
+    if (hasManualBreaks && explicitLines.length > 0) {
+      return explicitLines;
+    }
+
+    return plainTitle.split(/\s+/).filter(Boolean);
+  }
+
+  return [plainTitle];
 };
 
 const getOffscreenPoint = (
@@ -276,27 +331,27 @@ class Particle {
   }
 }
 
-const getBaseFontSize = (text: string, width: number) => {
+const getBaseFontSize = (text: string, width: number, lineCount = 1) => {
   if (text === "agenzion") {
     if (width < MOBILE_BREAKPOINT) return 48;
     if (width < TABLET_BREAKPOINT) return 80;
     return 120;
   }
 
-  if (width < MOBILE_BREAKPOINT) return 32;
+  if (width < MOBILE_BREAKPOINT) return lineCount > 1 ? 44 : 34;
   if (width < TABLET_BREAKPOINT) return 56;
   return 80;
 };
 
 const getTitleLetterSpacing = (width: number) => {
-  if (width < MOBILE_BREAKPOINT) return 2;
+  if (width < MOBILE_BREAKPOINT) return 1.5;
   if (width < TABLET_BREAKPOINT) return 3;
   return TITLE_LETTER_SPACING_PX;
 };
 
 const getTitleMaxWidth = (width: number) => {
   if (width < MOBILE_BREAKPOINT) {
-    return Math.max(248, width - 72);
+    return Math.max(248, width - 48);
   }
 
   if (width < TABLET_BREAKPOINT) {
@@ -306,28 +361,80 @@ const getTitleMaxWidth = (width: number) => {
   return width * 0.84;
 };
 
+const getTitleLineHeight = (fontSize: number, width: number) => {
+  return fontSize * (width < MOBILE_BREAKPOINT ? 1.08 : 1);
+};
+
+const getTitleBlockHeight = (
+  fontSize: number,
+  lineCount: number,
+  width: number,
+) => {
+  if (lineCount <= 0) {
+    return 0;
+  }
+
+  return fontSize + (lineCount - 1) * getTitleLineHeight(fontSize, width);
+};
+
+const getTitleMaxHeight = (
+  hasDescription: boolean,
+  width: number,
+  height: number,
+) => {
+  const { topInset, bottomInset } = getContentFrame(width, height);
+  const availableHeight = Math.max(0, height - topInset - bottomInset);
+
+  if (width < MOBILE_BREAKPOINT) {
+    const cap = hasDescription ? 232 : 320;
+    const ratio = hasDescription ? 0.52 : 0.72;
+
+    return Math.max(96, Math.min(cap, availableHeight * ratio));
+  }
+
+  if (width < TABLET_BREAKPOINT) {
+    return Math.max(120, availableHeight * 0.42);
+  }
+
+  return Math.max(140, availableHeight * 0.36);
+};
+
 const getMeasuredTitleWidth = (
   ctx: CanvasRenderingContext2D,
-  text: string,
+  lines: string[],
   letterSpacing: number,
 ) => {
-  return ctx.measureText(text).width + Math.max(0, Array.from(text).length - 1) * letterSpacing;
+  return Math.max(
+    0,
+    ...lines.map(
+      (line) =>
+        ctx.measureText(line).width +
+        Math.max(0, Array.from(line).length - 1) * letterSpacing,
+    ),
+  );
 };
 
 const fitFontSize = (
   ctx: CanvasRenderingContext2D,
   text: string,
   width: number,
+  height: number,
+  hasDescription: boolean,
 ) => {
-  let fontSize = getBaseFontSize(text, width);
+  const lines = getTitleLines(text, width);
+  let fontSize = getBaseFontSize(getPlainTitle(text), width, lines.length);
   const minFontSize = width < MOBILE_BREAKPOINT ? 16 : 20;
   const maxWidth = getTitleMaxWidth(width);
+  const maxHeight = getTitleMaxHeight(hasDescription, width, height);
   const letterSpacing = getTitleLetterSpacing(width);
 
   while (fontSize > minFontSize) {
     ctx.font = `800 ${fontSize}px Outfit, system-ui, sans-serif`;
 
-    if (getMeasuredTitleWidth(ctx, text, letterSpacing) <= maxWidth) {
+    if (
+      getMeasuredTitleWidth(ctx, lines, letterSpacing) <= maxWidth &&
+      getTitleBlockHeight(fontSize, lines.length, width) <= maxHeight
+    ) {
       return fontSize;
     }
 
@@ -350,6 +457,26 @@ const applyTitleTypography = (
     letterSpacing?: string;
   };
   letterSpacingContext.letterSpacing = `${getTitleLetterSpacing(width)}px`;
+};
+
+const drawTitleLines = (
+  ctx: CanvasRenderingContext2D,
+  lines: string[],
+  centerX: number,
+  centerY: number,
+  fontSize: number,
+  width: number,
+) => {
+  if (lines.length === 0) {
+    return;
+  }
+
+  const lineHeight = getTitleLineHeight(fontSize, width);
+  const firstLineY = centerY - ((lines.length - 1) * lineHeight) / 2;
+
+  lines.forEach((line, index) => {
+    ctx.fillText(line, centerX, firstLineY + index * lineHeight);
+  });
 };
 
 const getTitleOffsetY = (hasDescription: boolean, width: number) => {
@@ -406,6 +533,8 @@ export default function StarTextManifesto({
   const particlesRef = useRef<Particle[]>([]);
   const targetsRef = useRef<Point[][]>([]);
   const transitionParticlesRef = useRef<((index: number) => void) | null>(null);
+  const wheelDeltaAccumulatorRef = useRef(0);
+  const scrollProgressRef = useRef(0);
   const touchStartY = useRef(0);
   const { scrollYProgress } = useScroll({
     target: wrapperRef,
@@ -426,6 +555,23 @@ export default function StarTextManifesto({
     lockTimeoutRef.current = setTimeout(() => {
       isTransitioningRef.current = false;
     }, duration);
+  };
+
+  const scrollToSectionIndex = (
+    newIndex: number,
+    behavior: ScrollBehavior = "smooth",
+  ) => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || sections.length <= 1) return;
+
+    const scrollableDistance = Math.max(0, wrapper.offsetHeight - window.innerHeight);
+    const targetProgress = newIndex / (sections.length - 1);
+    const wrapperTop = wrapper.getBoundingClientRect().top + window.scrollY;
+
+    window.scrollTo({
+      top: Math.round(wrapperTop + scrollableDistance * targetProgress),
+      behavior,
+    });
   };
 
   const changeSection = (newIndex: number, options: ChangeSectionOptions = {}) => {
@@ -452,28 +598,35 @@ export default function StarTextManifesto({
     if (newIndex < 0 || newIndex >= sections.length) return;
 
     if (scrollDriven) {
-      const wrapper = wrapperRef.current;
-      if (wrapper) {
-        const scrollableDistance = Math.max(0, wrapper.offsetHeight - window.innerHeight);
-        const targetProgress = sections.length <= 1 ? 0 : newIndex / (sections.length - 1);
-        const wrapperTop = wrapper.getBoundingClientRect().top + window.scrollY;
-
-        window.scrollTo({
-          top: wrapperTop + scrollableDistance * targetProgress,
-          behavior: "smooth",
-        });
-      }
+      scrollToSectionIndex(newIndex);
     }
 
     changeSection(newIndex, { force: true });
   };
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const previousProgress = scrollProgressRef.current;
+    scrollProgressRef.current = value;
+
     if (!scrollDriven || sections.length <= 1) {
       return;
     }
 
     if (isTransitioningRef.current) {
+      return;
+    }
+
+    const currentIndex = activeSectionRef.current;
+    const lastIndex = sections.length - 1;
+    const enteredFromBefore =
+      currentIndex === 0 && previousProgress <= 0.01 && value > 0.01;
+    const enteredFromAfter =
+      currentIndex === lastIndex && previousProgress >= 0.99 && value < 0.99;
+
+    if (enteredFromBefore || enteredFromAfter) {
+      wheelDeltaAccumulatorRef.current = 0;
+      scrollToSectionIndex(enteredFromBefore ? 0 : lastIndex);
+      lockTransitions(650);
       return;
     }
 
@@ -485,26 +638,18 @@ export default function StarTextManifesto({
       ),
     );
 
-    if (nextIndex === activeSectionRef.current) {
+    if (nextIndex === currentIndex) {
       return;
     }
 
-    const previousIndex = activeSectionRef.current;
-    const direction = nextIndex > previousIndex ? 1 : -1;
+    const direction = nextIndex > currentIndex ? 1 : -1;
     const targetIndex = Math.max(
       0,
-      Math.min(sections.length - 1, previousIndex + direction),
+      Math.min(lastIndex, currentIndex + direction),
     );
-    const distance = Math.abs(targetIndex - previousIndex);
 
-    activeSectionRef.current = targetIndex;
-    setActiveSection(targetIndex);
-    transitionParticlesRef.current?.(targetIndex);
-    emitStarflow({
-      direction,
-      intensity: Math.min(1.5, 1 + distance * 0.18),
-    });
-    lockTransitions();
+    changeSection(targetIndex);
+    scrollToSectionIndex(targetIndex);
   });
 
   useEffect(() => {
@@ -524,8 +669,9 @@ export default function StarTextManifesto({
       height: number,
     ): SectionTargets => {
       const { title, text } = section;
+      const titleLines = getTitleLines(title, width);
 
-      if (!title) {
+      if (titleLines.length === 0) {
         return {
           fontSize: getBaseFontSize(title, width),
           points: [],
@@ -547,12 +693,15 @@ export default function StarTextManifesto({
       offCtx.clearRect(0, 0, width, height);
       offCtx.fillStyle = "white";
 
-      const fontSize = fitFontSize(offCtx, title, width);
+      const fontSize = fitFontSize(offCtx, title, width, height, Boolean(text));
       applyTitleTypography(offCtx, fontSize, width);
-      offCtx.fillText(
-        title,
+      drawTitleLines(
+        offCtx,
+        titleLines,
         width / 2,
         getTitleCenterY(Boolean(text), width, height),
+        fontSize,
+        width,
       );
 
       const imageData = offCtx.getImageData(0, 0, width, height).data;
@@ -780,8 +929,10 @@ export default function StarTextManifesto({
       if (!section) {
         return;
       }
+      const titleLines = getTitleLines(section.title, width);
       const fontSize =
-        titleFontSizes[activeSection] ?? getBaseFontSize(section.title, width);
+        titleFontSizes[activeSection] ??
+        fitFontSize(ctx, section.title, width, height, Boolean(section.text));
 
       applyTitleTypography(ctx, fontSize, width);
       ctx.fillStyle = "rgba(255,255,255,0.16)";
@@ -789,7 +940,7 @@ export default function StarTextManifesto({
       const centerX = width / 2;
       const centerY = getTitleCenterY(Boolean(section.text), width, height);
 
-      ctx.fillText(section.title, centerX, centerY);
+      drawTitleLines(ctx, titleLines, centerX, centerY, fontSize, width);
     };
 
     if ("fonts" in document) {
@@ -805,6 +956,39 @@ export default function StarTextManifesto({
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     if (scrollDriven) {
+      if (isTransitioningRef.current) {
+        wheelDeltaAccumulatorRef.current = 0;
+        event.preventDefault();
+        return;
+      }
+
+      const currentIndex = activeSectionRef.current;
+      const isLeavingBeforeFirst = currentIndex === 0 && event.deltaY < 0;
+      const isLeavingAfterLast =
+        currentIndex === sections.length - 1 && event.deltaY > 0;
+
+      if (allowPageScrollAtEdges && (isLeavingBeforeFirst || isLeavingAfterLast)) {
+        wheelDeltaAccumulatorRef.current = 0;
+        return;
+      }
+
+      event.preventDefault();
+      wheelDeltaAccumulatorRef.current += event.deltaY;
+
+      if (Math.abs(wheelDeltaAccumulatorRef.current) < WHEEL_DELTA_THRESHOLD) {
+        return;
+      }
+
+      const direction = wheelDeltaAccumulatorRef.current > 0 ? 1 : -1;
+      wheelDeltaAccumulatorRef.current = 0;
+      const targetIndex = currentIndex + direction;
+
+      if (targetIndex < 0 || targetIndex >= sections.length) {
+        return;
+      }
+
+      changeSection(targetIndex);
+      scrollToSectionIndex(targetIndex);
       return;
     }
 
@@ -834,15 +1018,28 @@ export default function StarTextManifesto({
   };
 
   const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
-    if (scrollDriven) {
-      return;
-    }
-
     touchStartY.current = event.touches[0]?.clientY ?? 0;
   };
 
   const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
     if (scrollDriven) {
+      if (isTransitioningRef.current) {
+        event.preventDefault();
+        return;
+      }
+
+      const currentY = event.touches[0]?.clientY ?? touchStartY.current;
+      const deltaY = touchStartY.current - currentY;
+      const currentIndex = activeSectionRef.current;
+      const isLeavingBeforeFirst = currentIndex === 0 && deltaY < 0;
+      const isLeavingAfterLast =
+        currentIndex === sections.length - 1 && deltaY > 0;
+
+      if (allowPageScrollAtEdges && (isLeavingBeforeFirst || isLeavingAfterLast)) {
+        return;
+      }
+
+      event.preventDefault();
       return;
     }
 
@@ -854,6 +1051,37 @@ export default function StarTextManifesto({
 
   const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
     if (scrollDriven) {
+      if (isTransitioningRef.current) {
+        event.preventDefault();
+        return;
+      }
+
+      const touchEndY = event.changedTouches[0]?.clientY ?? touchStartY.current;
+      const deltaY = touchStartY.current - touchEndY;
+
+      if (Math.abs(deltaY) < TOUCH_DELTA_THRESHOLD) {
+        return;
+      }
+
+      const currentIndex = activeSectionRef.current;
+      const direction = deltaY > 0 ? 1 : -1;
+      const targetIndex = currentIndex + direction;
+      const isLeavingBeforeFirst = currentIndex === 0 && direction < 0;
+      const isLeavingAfterLast =
+        currentIndex === sections.length - 1 && direction > 0;
+
+      if (allowPageScrollAtEdges && (isLeavingBeforeFirst || isLeavingAfterLast)) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (targetIndex < 0 || targetIndex >= sections.length) {
+        return;
+      }
+
+      changeSection(targetIndex);
+      scrollToSectionIndex(targetIndex);
       return;
     }
 
@@ -903,7 +1131,7 @@ export default function StarTextManifesto({
     >
       <div
         className={scrollDriven ? "relative w-full" : "relative h-[100dvh] w-full"}
-        style={scrollDriven ? { height: `${Math.max(2, sections.length) * 100}vh` } : undefined}
+        style={scrollDriven ? { height: `${Math.max(2, sections.length) * 100}dvh` } : undefined}
       >
         <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
           <canvas
