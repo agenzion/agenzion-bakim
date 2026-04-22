@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Copy,
 } from 'lucide-react';
+import useIsMobile from '@/lib/useIsMobile';
 
 const TOKEN_SPLIT_REGEX =
   /(\s+|[(){}[\]:;,.<>]|\/\/.*|\/\*[\s\S]*?\*\/|"[^"]*"|'[^']*'|`[^`]*`)/g;
@@ -189,7 +190,8 @@ const serializeFilesForComparison = (
 
 const LiveResultView: React.FC<{
   preview: PreviewCopy;
-}> = ({ preview }) => {
+  disableExitAnimation?: boolean;
+}> = ({ preview, disableExitAnimation = false }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -285,7 +287,7 @@ const LiveResultView: React.FC<{
       key="result"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      exit={disableExitAnimation ? undefined : { opacity: 0, scale: 0.95 }}
       className="w-full h-full flex flex-col bg-[#1e1e1e] relative rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20"
     >
       {/* Browser-like header */}
@@ -517,7 +519,15 @@ const EditorPanel: React.FC<{
   runCopy: RunSequenceCopy;
   preview: PreviewCopy;
   statusLanguage?: string;
-}> = ({ initialFiles, chromeCopy, runCopy, preview, statusLanguage = 'TSX' }) => {
+  disableExitAnimation?: boolean;
+}> = ({
+  initialFiles,
+  chromeCopy,
+  runCopy,
+  preview,
+  statusLanguage = 'TSX',
+  disableExitAnimation = false,
+}) => {
   const [files, setFiles] = useState(() => createEmptyFiles(initialFiles));
   const [activeFileId, setActiveFileId] = useState<string>(() => initialFiles[0].id);
   const [isRunning, setIsRunning] = useState(false);
@@ -672,7 +682,7 @@ const EditorPanel: React.FC<{
                 key="editor"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                exit={disableExitAnimation ? undefined : { opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.5 }}
                 className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20 flex flex-col"
               >
@@ -780,7 +790,7 @@ const EditorPanel: React.FC<{
                     <motion.div
                       initial={{ y: '100%' }}
                       animate={{ y: 0 }}
-                      exit={{ y: '100%' }}
+                      exit={disableExitAnimation ? undefined : { y: '100%' }}
                       transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
                       className="absolute bottom-0 left-0 right-0 h-[40%] bg-black/95 backdrop-blur border-t border-white/20 z-30 flex flex-col font-mono"
                     >
@@ -827,7 +837,10 @@ const EditorPanel: React.FC<{
                 </div>
               </motion.div>
             ) : (
-              <LiveResultView preview={preview} />
+              <LiveResultView
+                preview={preview}
+                disableExitAnimation={disableExitAnimation}
+              />
             )}
           </AnimatePresence>
       </div>
@@ -838,7 +851,8 @@ const EditorPanel: React.FC<{
 const LegacyInstallPanel: React.FC<{
   copy: LegacyEditorCopy;
   preview: PreviewCopy;
-}> = ({ copy, preview }) => {
+  disableExitAnimation?: boolean;
+}> = ({ copy, preview, disableExitAnimation = false }) => {
   const [showResult, setShowResult] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
   const [completedSteps, setCompletedSteps] = useState(0);
@@ -897,7 +911,7 @@ const LegacyInstallPanel: React.FC<{
               key="legacy-installer"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={disableExitAnimation ? undefined : { opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.5 }}
               className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20 flex flex-col"
             >
@@ -1077,7 +1091,10 @@ const LegacyInstallPanel: React.FC<{
             </motion.div>
           </motion.div>
         ) : (
-          <LiveResultView preview={preview} />
+          <LiveResultView
+            preview={preview}
+            disableExitAnimation={disableExitAnimation}
+          />
         )}
       </AnimatePresence>
     </div>
@@ -1088,6 +1105,7 @@ const LegacyInstallPanel: React.FC<{
 const CodeEditor: React.FC<{
   copy: CodeEditorCopy;
 }> = ({ copy }) => {
+  const isMobile = useIsMobile();
   const modernFiles = useMemo(() => buildInitialFiles(copy), [copy]);
 
   return (
@@ -1112,6 +1130,7 @@ const CodeEditor: React.FC<{
           <LegacyInstallPanel
             key="legacy-installer"
             copy={copy.legacyEditor}
+            disableExitAnimation={isMobile}
             preview={{
               previewUrl: copy.legacyEditor.previewUrl,
               previewLabel: copy.legacyEditor.previewLabel,
@@ -1125,6 +1144,7 @@ const CodeEditor: React.FC<{
             initialFiles={modernFiles}
             chromeCopy={copy}
             runCopy={copy}
+            disableExitAnimation={isMobile}
             preview={{
               previewUrl: copy.previewUrl,
               previewLabel: copy.previewLabel,

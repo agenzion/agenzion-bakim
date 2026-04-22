@@ -533,6 +533,7 @@ export default function StarTextManifesto({
   const particlesRef = useRef<Particle[]>([]);
   const targetsRef = useRef<Point[][]>([]);
   const transitionParticlesRef = useRef<((index: number) => void) | null>(null);
+  const scrollSceneVisibleRef = useRef(!scrollDriven);
   const touchStartY = useRef(0);
   const { scrollYProgress } = useScroll({
     target: wrapperRef,
@@ -542,6 +543,38 @@ export default function StarTextManifesto({
   useEffect(() => {
     activeSectionRef.current = activeSection;
   }, [activeSection]);
+
+  useEffect(() => {
+    if (!scrollDriven) {
+      scrollSceneVisibleRef.current = true;
+      return;
+    }
+
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const updateVisibility = () => {
+      const rect = wrapper.getBoundingClientRect();
+      scrollSceneVisibleRef.current =
+        rect.bottom > 1 && rect.top < window.innerHeight - 1;
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        scrollSceneVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+
+    updateVisibility();
+    observer.observe(wrapper);
+    window.addEventListener("resize", updateVisibility);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateVisibility);
+    };
+  }, [scrollDriven]);
 
   const lockTransitions = (duration = TRANSITION_LOCK_MS) => {
     isTransitioningRef.current = true;
@@ -610,6 +643,10 @@ export default function StarTextManifesto({
       return;
     }
 
+    if (!scrollSceneVisibleRef.current) {
+      return;
+    }
+
     const currentIndex = activeSectionRef.current;
     const nextIndex = Math.max(
       0,
@@ -633,7 +670,7 @@ export default function StarTextManifesto({
     const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
 
-    let animationFrameId = 0;
+    let animationFrameId: number | null = null;
     let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
     let disposed = false;
     let renderWidth = 0;
@@ -828,50 +865,81 @@ export default function StarTextManifesto({
       resizeTimeout = setTimeout(init, 250);
     };
 
-    let isPaused = false;
+    let isPaused = true;
 
     const draw = () => {
-      if (!isPaused) {
-        const currentTime = performance.now();
-        const isCompactViewport = renderWidth < MOBILE_BREAKPOINT;
-        const minFrameInterval = isCompactViewport ? 1000 / 30 : 0;
+      animationFrameId = null;
 
-        if (!isCompactViewport || currentTime - lastDrawTime >= minFrameInterval) {
-          lastDrawTime = currentTime;
-          ctx.clearRect(0, 0, renderWidth, renderHeight);
+      if (disposed || isPaused) {
+        return;
+      }
 
-          particlesRef.current.forEach((particle) => {
-            particle.update(currentTime);
-            particle.draw(ctx, currentTime);
-          });
+      const currentTime = performance.now();
+      const isCompactViewport = renderWidth < MOBILE_BREAKPOINT;
+      const minFrameInterval = isCompactViewport ? 1000 / 30 : 0;
+
+      if (!isCompactViewport || currentTime - lastDrawTime >= minFrameInterval) {
+        lastDrawTime = currentTime;
+        ctx.clearRect(0, 0, renderWidth, renderHeight);
+
+        particlesRef.current.forEach((particle) => {
+          particle.update(currentTime);
+          particle.draw(ctx, currentTime);
+        });
+      }
+
+      animationFrameId = window.requestAnimationFrame(draw);
+    };
+
+    const setPaused = (nextPaused: boolean) => {
+      if (isPaused === nextPaused) {
+        if (!isPaused && animationFrameId === null) {
+          animationFrameId = window.requestAnimationFrame(draw);
         }
+        return;
+      }
+
+      isPaused = nextPaused;
+
+      if (isPaused) {
+        if (animationFrameId !== null) {
+          window.cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+        return;
       }
 
       animationFrameId = window.requestAnimationFrame(draw);
     };
 
     const handleVisibilityChange = () => {
-      isPaused = document.hidden;
+      const wrapper = wrapperRef.current;
+      const rect = wrapper?.getBoundingClientRect();
+      const sceneVisible = rect
+        ? rect.bottom > 1 && rect.top < window.innerHeight - 1
+        : false;
+
+      setPaused(document.hidden || !sceneVisible);
     };
 
-    // Pause the particle loop when the canvas is not visible.
+    // Pause the particle loop when the scroll scene is not visible.
     const observer = new IntersectionObserver(
       ([entry]) => {
-        isPaused = !entry.isIntersecting || document.hidden;
+        setPaused(!entry.isIntersecting || document.hidden);
       },
       { threshold: 0 },
     );
-    observer.observe(canvas);
+    observer.observe(wrapperRef.current ?? canvas);
 
     initializeWithFonts();
-    draw();
+    handleVisibilityChange();
 
     window.addEventListener("resize", handleResize);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       disposed = true;
-      isPaused = true;
+      setPaused(true);
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       observer.disconnect();
@@ -884,7 +952,9 @@ export default function StarTextManifesto({
         clearTimeout(lockTimeoutRef.current);
       }
 
-      window.cancelAnimationFrame(animationFrameId);
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
     };
   }, [sections]);
 
