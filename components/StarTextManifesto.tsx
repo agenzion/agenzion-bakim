@@ -24,11 +24,11 @@ type SectionTargets = {
 
 type ChangeSectionOptions = {
   force?: boolean;
+  lock?: boolean;
 };
 
 const TRANSITION_LOCK_MS = 2000;
 const WHEEL_DELTA_THRESHOLD = 36;
-const TOUCH_DELTA_THRESHOLD = 50;
 const MOBILE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;
 const TITLE_LETTER_SPACING_PX = 4;
@@ -37,7 +37,7 @@ const TITLE_TAG_PATTERN = /<[^>]+>/g;
 const TITLE_POINT_CONFIG = {
   mobile: {
     gap: 2,
-    maxPoints: 2600,
+    maxPoints: 1800,
     alphaThreshold: 104,
   },
   tablet: {
@@ -533,8 +533,6 @@ export default function StarTextManifesto({
   const particlesRef = useRef<Particle[]>([]);
   const targetsRef = useRef<Point[][]>([]);
   const transitionParticlesRef = useRef<((index: number) => void) | null>(null);
-  const wheelDeltaAccumulatorRef = useRef(0);
-  const scrollProgressRef = useRef(0);
   const touchStartY = useRef(0);
   const { scrollYProgress } = useScroll({
     target: wrapperRef,
@@ -591,7 +589,10 @@ export default function StarTextManifesto({
       direction,
       intensity: Math.min(1.5, 1 + distance * 0.18),
     });
-    lockTransitions();
+
+    if (options.lock ?? true) {
+      lockTransitions();
+    }
   };
 
   const goToSection = (newIndex: number) => {
@@ -601,35 +602,15 @@ export default function StarTextManifesto({
       scrollToSectionIndex(newIndex);
     }
 
-    changeSection(newIndex, { force: true });
+    changeSection(newIndex, { force: true, lock: !scrollDriven });
   };
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    const previousProgress = scrollProgressRef.current;
-    scrollProgressRef.current = value;
-
     if (!scrollDriven || sections.length <= 1) {
       return;
     }
 
-    if (isTransitioningRef.current) {
-      return;
-    }
-
     const currentIndex = activeSectionRef.current;
-    const lastIndex = sections.length - 1;
-    const enteredFromBefore =
-      currentIndex === 0 && previousProgress <= 0.01 && value > 0.01;
-    const enteredFromAfter =
-      currentIndex === lastIndex && previousProgress >= 0.99 && value < 0.99;
-
-    if (enteredFromBefore || enteredFromAfter) {
-      wheelDeltaAccumulatorRef.current = 0;
-      scrollToSectionIndex(enteredFromBefore ? 0 : lastIndex);
-      lockTransitions(650);
-      return;
-    }
-
     const nextIndex = Math.max(
       0,
       Math.min(
@@ -642,26 +623,24 @@ export default function StarTextManifesto({
       return;
     }
 
-    const direction = nextIndex > currentIndex ? 1 : -1;
-    const targetIndex = Math.max(
-      0,
-      Math.min(lastIndex, currentIndex + direction),
-    );
-
-    changeSection(targetIndex);
-    scrollToSectionIndex(targetIndex);
+    changeSection(nextIndex, { lock: false });
   });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
 
     let animationFrameId = 0;
     let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
     let disposed = false;
+    let renderWidth = 0;
+    let renderHeight = 0;
+    let lastInitWidth = 0;
+    let lastInitHeight = 0;
+    let lastDrawTime = 0;
 
     const extractTargets = (
       section: ManifestoSection,
@@ -797,6 +776,10 @@ export default function StarTextManifesto({
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      renderWidth = width;
+      renderHeight = height;
+      lastInitWidth = width;
+      lastInitHeight = height;
 
       const sectionTargets = sections.map((section) => extractTargets(section, width, height));
 
@@ -828,6 +811,16 @@ export default function StarTextManifesto({
     };
 
     const handleResize = () => {
+      const nextWidth = window.innerWidth;
+      const nextHeight = window.innerHeight;
+      const isCompactViewport = nextWidth < MOBILE_BREAKPOINT;
+      const widthChanged = Math.abs(nextWidth - lastInitWidth) > 1;
+      const heightDelta = Math.abs(nextHeight - lastInitHeight);
+
+      if (isCompactViewport && !widthChanged && heightDelta < 140) {
+        return;
+      }
+
       if (resizeTimeout) {
         clearTimeout(resizeTimeout);
       }
@@ -839,16 +832,19 @@ export default function StarTextManifesto({
 
     const draw = () => {
       if (!isPaused) {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        ctx.clearRect(0, 0, width, height);
-
         const currentTime = performance.now();
-        particlesRef.current.forEach((particle) => {
-          particle.update(currentTime);
-          particle.draw(ctx, currentTime);
-        });
+        const isCompactViewport = renderWidth < MOBILE_BREAKPOINT;
+        const minFrameInterval = isCompactViewport ? 1000 / 30 : 0;
+
+        if (!isCompactViewport || currentTime - lastDrawTime >= minFrameInterval) {
+          lastDrawTime = currentTime;
+          ctx.clearRect(0, 0, renderWidth, renderHeight);
+
+          particlesRef.current.forEach((particle) => {
+            particle.update(currentTime);
+            particle.draw(ctx, currentTime);
+          });
+        }
       }
 
       animationFrameId = window.requestAnimationFrame(draw);
@@ -956,39 +952,6 @@ export default function StarTextManifesto({
 
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     if (scrollDriven) {
-      if (isTransitioningRef.current) {
-        wheelDeltaAccumulatorRef.current = 0;
-        event.preventDefault();
-        return;
-      }
-
-      const currentIndex = activeSectionRef.current;
-      const isLeavingBeforeFirst = currentIndex === 0 && event.deltaY < 0;
-      const isLeavingAfterLast =
-        currentIndex === sections.length - 1 && event.deltaY > 0;
-
-      if (allowPageScrollAtEdges && (isLeavingBeforeFirst || isLeavingAfterLast)) {
-        wheelDeltaAccumulatorRef.current = 0;
-        return;
-      }
-
-      event.preventDefault();
-      wheelDeltaAccumulatorRef.current += event.deltaY;
-
-      if (Math.abs(wheelDeltaAccumulatorRef.current) < WHEEL_DELTA_THRESHOLD) {
-        return;
-      }
-
-      const direction = wheelDeltaAccumulatorRef.current > 0 ? 1 : -1;
-      wheelDeltaAccumulatorRef.current = 0;
-      const targetIndex = currentIndex + direction;
-
-      if (targetIndex < 0 || targetIndex >= sections.length) {
-        return;
-      }
-
-      changeSection(targetIndex);
-      scrollToSectionIndex(targetIndex);
       return;
     }
 
@@ -1023,23 +986,6 @@ export default function StarTextManifesto({
 
   const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
     if (scrollDriven) {
-      if (isTransitioningRef.current) {
-        event.preventDefault();
-        return;
-      }
-
-      const currentY = event.touches[0]?.clientY ?? touchStartY.current;
-      const deltaY = touchStartY.current - currentY;
-      const currentIndex = activeSectionRef.current;
-      const isLeavingBeforeFirst = currentIndex === 0 && deltaY < 0;
-      const isLeavingAfterLast =
-        currentIndex === sections.length - 1 && deltaY > 0;
-
-      if (allowPageScrollAtEdges && (isLeavingBeforeFirst || isLeavingAfterLast)) {
-        return;
-      }
-
-      event.preventDefault();
       return;
     }
 
@@ -1050,41 +996,6 @@ export default function StarTextManifesto({
   };
 
   const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
-    if (scrollDriven) {
-      if (isTransitioningRef.current) {
-        event.preventDefault();
-        return;
-      }
-
-      const touchEndY = event.changedTouches[0]?.clientY ?? touchStartY.current;
-      const deltaY = touchStartY.current - touchEndY;
-
-      if (Math.abs(deltaY) < TOUCH_DELTA_THRESHOLD) {
-        return;
-      }
-
-      const currentIndex = activeSectionRef.current;
-      const direction = deltaY > 0 ? 1 : -1;
-      const targetIndex = currentIndex + direction;
-      const isLeavingBeforeFirst = currentIndex === 0 && direction < 0;
-      const isLeavingAfterLast =
-        currentIndex === sections.length - 1 && direction > 0;
-
-      if (allowPageScrollAtEdges && (isLeavingBeforeFirst || isLeavingAfterLast)) {
-        return;
-      }
-
-      event.preventDefault();
-
-      if (targetIndex < 0 || targetIndex >= sections.length) {
-        return;
-      }
-
-      changeSection(targetIndex);
-      scrollToSectionIndex(targetIndex);
-      return;
-    }
-
     const touchEndY = event.changedTouches[0]?.clientY ?? touchStartY.current;
     const deltaY = touchStartY.current - touchEndY;
 
@@ -1122,11 +1033,11 @@ export default function StarTextManifesto({
   return (
     <div
       ref={wrapperRef}
-      className={`relative w-full ${scrollDriven ? "overflow-visible" : "overflow-hidden"} overscroll-none`}
-      onWheel={handleWheel}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      className={`relative w-full ${scrollDriven ? "overflow-visible" : "overflow-hidden overscroll-none"}`}
+      onWheel={scrollDriven ? undefined : handleWheel}
+      onTouchStart={scrollDriven ? undefined : handleTouchStart}
+      onTouchMove={scrollDriven ? undefined : handleTouchMove}
+      onTouchEnd={scrollDriven ? undefined : handleTouchEnd}
       style={{ touchAction: scrollDriven || allowPageScrollAtEdges ? "pan-y" : "none" }}
     >
       <div

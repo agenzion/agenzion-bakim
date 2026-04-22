@@ -44,7 +44,7 @@ const CosmicBackground = ({ planets = [], masked = false }: CosmicBackgroundProp
         {backgroundStars.map((star) => (
           <div
             key={star.id}
-            className="absolute rounded-full bg-white"
+            className={`absolute rounded-full bg-white ${star.id % 2 === 0 ? '' : 'hidden md:block'}`}
             style={{
               top: star.top,
               left: star.left,
@@ -59,7 +59,7 @@ const CosmicBackground = ({ planets = [], masked = false }: CosmicBackgroundProp
         {shootingStars.map((star) => (
           <div
             key={`shooting-${star.id}`}
-            className="absolute z-0"
+            className={`absolute z-0 ${star.id === 1 ? '' : 'hidden md:block'}`}
             style={{
               top: star.top,
               left: star.left,

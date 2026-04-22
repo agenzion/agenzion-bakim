@@ -142,8 +142,8 @@ DesktopServiceCard.displayName = 'DesktopServiceCard';
 const MobileServiceCard = memo(function MobileServiceCard({ service }: { service: Service }) {
   return (
     <motion.article
-      initial={{ opacity: 0, scale: 0.86, filter: 'blur(12px)' }}
-      whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+      initial={{ opacity: 0, scale: 0.9, y: 12 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
       viewport={{ once: true, amount: 0.45 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="relative w-full overflow-hidden rounded-lg border border-white/10 bg-[#080b14]/88 p-6 shadow-[0_18px_70px_rgba(0,0,0,0.34)]"

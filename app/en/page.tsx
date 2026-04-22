@@ -55,8 +55,8 @@ export default async function EnglishHome() {
       />
       <section className="relative -mt-px overflow-x-clip bg-[linear-gradient(to_bottom,#000000_0%,#000000_34%,#020205_52%,#060916_76%,#020205_100%)]">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute right-[-12rem] top-[12%] h-[34rem] w-[34rem] rounded-full bg-[#4592AF]/10 blur-[160px]" />
-          <div className="absolute left-[-10rem] top-[42%] h-[28rem] w-[28rem] rounded-full bg-blue-800/10 blur-[150px]" />
+          <div className="absolute right-[-8rem] top-[12%] h-[20rem] w-[20rem] rounded-full bg-[#4592AF]/10 blur-[82px] md:right-[-12rem] md:h-[34rem] md:w-[34rem] md:blur-[160px]" />
+          <div className="absolute left-[-7rem] top-[42%] h-[18rem] w-[18rem] rounded-full bg-blue-800/10 blur-[76px] md:left-[-10rem] md:h-[28rem] md:w-[28rem] md:blur-[150px]" />
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black via-black/92 to-transparent" />
         </div>
         <About paragraphs={content.about.paragraphs} />

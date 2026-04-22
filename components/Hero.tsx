@@ -35,6 +35,7 @@ const Hero: React.FC<{
   const TEXT_FADE_END = 0.8;
   const TEXT1_FADE_START = isMobile ? 0.32 : 0.4;
   const TEXT1_FADE_END = isMobile ? 0.44 : 0.5;
+  const NAV_BACKGROUND_START = 0.97;
 
   // BACKGROUND INTERPOLATION
   const backgroundColor = useTransform(
@@ -72,14 +73,23 @@ const Hero: React.FC<{
   const MOON_IMAGE_SRC = '/images/space/moon.jpg';
 
   // SUN GLOW / CORONA EFFECT
-  const sunShadow = useTransform(
+  // Keep the expensive blur/paint work static and drive only opacity/scale on scroll.
+  const warmGlowOpacity = useTransform(
     scrollYProgress,
     [0.5, END_MOVEMENT - 0.05, END_MOVEMENT],
-    [
-      '0px 0px 120px 40px rgba(255, 140, 0, 0.5), 0px 0px 60px 20px rgba(255, 200, 50, 0.7)',
-      '0px 0px 60px 20px rgba(255, 140, 0, 0.3), 0px 0px 20px 10px rgba(255, 200, 50, 0.5)',
-      '0px 0px 20px 5px rgba(255, 255, 255, 1), 0px 0px 80px 20px rgba(255, 255, 255, 0.8), 0px 0px 150px 40px rgba(150, 200, 255, 0.5), 0px 0px 300px 80px rgba(100, 150, 255, 0.2)',
-    ]
+    [1, 0.5, 0]
+  );
+  const warmGlowScale = useTransform(scrollYProgress, [0.5, END_MOVEMENT], [1, 0.86]);
+  const coronaOpacity = useTransform(
+    scrollYProgress,
+    [END_MOVEMENT - 0.08, END_MOVEMENT - 0.02, END_MOVEMENT],
+    [0, 0.35, 1]
+  );
+  const coronaScale = useTransform(scrollYProgress, [END_MOVEMENT - 0.08, END_MOVEMENT], [0.76, 1]);
+  const sunSurfaceOpacity = useTransform(
+    scrollYProgress,
+    [0, END_MOVEMENT - 0.05, END_MOVEMENT],
+    [0.26, 0.14, 0]
   );
 
   const sunColor = useTransform(
@@ -91,11 +101,43 @@ const Hero: React.FC<{
   const navColor = useTransform(scrollYProgress, [0.5, END_MOVEMENT], ['#333', '#FFF']);
   const darkLogoOpacity = useTransform(scrollYProgress, [0.5, END_MOVEMENT], [1, 0]);
   const lightLogoOpacity = useTransform(scrollYProgress, [0.5, END_MOVEMENT], [0, 1]);
+  const navBackgroundColor = useTransform(
+    scrollYProgress,
+    [NAV_BACKGROUND_START, 1],
+    ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.7)']
+  );
+  const navBackdropBlur = useTransform(
+    scrollYProgress,
+    [NAV_BACKGROUND_START, 1],
+    ['blur(0px)', 'blur(12px)']
+  );
+  const navPadding = useTransform(
+    scrollYProgress,
+    [NAV_BACKGROUND_START, 1],
+    ['32px', '16px']
+  );
+  const navBorderColor = useTransform(
+    scrollYProgress,
+    [NAV_BACKGROUND_START, 1],
+    ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.1)']
+  );
+  const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
   return (
     <div ref={containerRef} className="relative h-[450vh]">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 z-50 flex w-full items-center justify-between p-5 md:p-8">
+      <motion.nav
+        style={{
+          backgroundColor: navBackgroundColor,
+          backdropFilter: navBackdropBlur,
+          WebkitBackdropFilter: navBackdropBlur,
+          paddingTop: navPadding,
+          paddingBottom: navPadding,
+          borderBottom: '1px solid',
+          borderBottomColor: navBorderColor,
+        }}
+        className="fixed top-0 left-0 z-50 flex w-full items-center justify-between px-5 md:px-8"
+      >
         <Link href={getLocalizedPath(locale, 'home')} className="block shrink-0">
           <BrandLogo
             darkOpacity={darkLogoOpacity}
@@ -114,7 +156,7 @@ const Hero: React.FC<{
           />
           <LanguageSwitch locale={locale} href={alternatePath} color={navColor} />
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Sticky Viewport */}
       <motion.div
@@ -176,8 +218,17 @@ const Hero: React.FC<{
 
               {/* THE SUN */}
               <motion.div
+                aria-hidden="true"
+                style={{ opacity: warmGlowOpacity, scale: warmGlowScale }}
+                className="pointer-events-none absolute z-10 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(255,190,84,0.48)_0%,rgba(255,138,38,0.24)_42%,transparent_72%)] blur-2xl md:h-[28rem] md:w-[28rem] md:blur-3xl"
+              />
+              <motion.div
+                aria-hidden="true"
+                style={{ opacity: coronaOpacity, scale: coronaScale }}
+                className="pointer-events-none absolute z-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.9)_0%,rgba(190,220,255,0.4)_22%,rgba(106,158,255,0.18)_52%,transparent_74%)] blur-2xl md:h-[34rem] md:w-[34rem] md:blur-3xl"
+              />
+              <motion.div
                 style={{
-                  boxShadow: sunShadow,
                   backgroundColor: sunColor,
                 }}
                 className="absolute z-20 h-56 w-56 overflow-hidden rounded-full md:h-80 md:w-80"
@@ -185,7 +236,7 @@ const Hero: React.FC<{
                 {/* Sun Surface Details */}
                 <motion.div
                   initial={{ x: '-7%', scale: 1.42 }}
-                  style={{ opacity: useTransform(scrollYProgress, [0, END_MOVEMENT - 0.05, END_MOVEMENT], [0.26, 0.14, 0]) }}
+                  style={{ opacity: sunSurfaceOpacity }}
                   className="absolute inset-0 rounded-full overflow-hidden pointer-events-none select-none will-change-transform"
                   animate={
                     isMobile
@@ -247,7 +298,7 @@ const Hero: React.FC<{
 
         {/* Scroll Indicator */}
         <motion.div
-          style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
+          style={{ opacity: scrollIndicatorOpacity }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-400"
         >
           <span className="text-[10px] md:text-xs uppercase tracking-[0.2em]">{copy.scrollLabel}</span>

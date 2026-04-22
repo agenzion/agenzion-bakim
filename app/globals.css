@@ -10,6 +10,7 @@
     background: #020205;
     color-scheme: dark;
     min-height: 100%;
+    position: relative;
   }
 
   body {

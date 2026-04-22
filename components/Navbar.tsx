@@ -57,7 +57,8 @@ const Navbar: React.FC<
   );
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
-    setIsDarkBackground(dark || latest > 8);
+    const nextValue = dark || latest > 8;
+    setIsDarkBackground((current) => (current === nextValue ? current : nextValue));
   });
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useRef } from 'react';
+import { motion, useMotionValue, useSpring } from 'motion/react';
 
 interface MagneticProps {
   children: React.ReactNode;
@@ -10,7 +10,10 @@ interface MagneticProps {
 
 const Magnetic: React.FC<MagneticProps> = ({ children, strength = 30 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const x = useSpring(rawX, { stiffness: 150, damping: 15, mass: 0.1 });
+  const y = useSpring(rawY, { stiffness: 150, damping: 15, mass: 0.1 });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
@@ -22,26 +25,21 @@ const Magnetic: React.FC<MagneticProps> = ({ children, strength = 30 }) => {
     };
     const middleX = clientX - (left + width / 2);
     const middleY = clientY - (top + height / 2);
-    setPosition({
-      x: middleX * 0.1 * (strength / 10),
-      y: middleY * 0.1 * (strength / 10),
-    });
+    rawX.set(middleX * 0.1 * (strength / 10));
+    rawY.set(middleY * 0.1 * (strength / 10));
   };
 
   const reset = () => {
-    setPosition({ x: 0, y: 0 });
+    rawX.set(0);
+    rawY.set(0);
   };
-
-  const { x, y } = position;
 
   return (
     <motion.div
-      style={{ position: 'relative', display: 'inline-block' }}
+      style={{ position: 'relative', display: 'inline-block', x, y }}
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={reset}
-      animate={{ x, y }}
-      transition={{ type: 'spring', stiffness: 150, damping: 15, mass: 0.1 }}
     >
       {children}
     </motion.div>

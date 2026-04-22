@@ -87,7 +87,7 @@ const StarryBackground = () => {
       {backgroundStars.map((star) => (
         <div
           key={star.id}
-          className="absolute bg-white rounded-full"
+          className={`absolute rounded-full bg-white ${star.id % 2 === 0 ? '' : 'hidden md:block'}`}
           style={{
             top: star.top,
             left: star.left,
@@ -102,7 +102,7 @@ const StarryBackground = () => {
       {shootingStars.map((star) => (
         <div
           key={`shooting-${star.id}`}
-          className="absolute z-0"
+          className={`absolute z-0 ${star.id === 1 ? '' : 'hidden md:block'}`}
           style={{
             top: star.top,
             left: star.left,
@@ -408,12 +408,12 @@ const Card: React.FC<CardProps> = ({
         {/* Right Column: Visual */}
         <div className="relative h-full w-full overflow-hidden rounded-r-3xl md:rounded-l-none rounded-b-3xl md:rounded-br-3xl hidden md:block">
           <div className="absolute inset-0 w-full h-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={imageSrc}
               alt={title}
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
               loading={i === 0 ? 'eager' : 'lazy'}
-              decoding="async"
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
             />
@@ -426,12 +426,12 @@ const Card: React.FC<CardProps> = ({
 
         {/* Mobile Image Overlay (Subtle background) */}
         <div className="md:hidden absolute inset-0 -z-10 opacity-30">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={imageSrc}
             alt={title}
+            fill
+            sizes="100vw"
             loading={i === 0 ? 'eager' : 'lazy'}
-            decoding="async"
             className="h-full w-full object-cover"
             referrerPolicy="no-referrer"
           />

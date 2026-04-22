@@ -23,8 +23,8 @@ const JSX_TAG_TOKEN_REGEX = /^[a-z][a-z0-9-]*$/i;
 const revealTransition = { duration: 0.55, ease: 'easeOut' } as const;
 
 const revealItemVariants = {
-  hidden: { opacity: 0, y: 16, filter: 'blur(8px)' },
-  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: revealTransition },
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: revealTransition },
 };
 
 const wordpressLoadContainerVariants = {
@@ -393,8 +393,8 @@ const PanelActionHeader: React.FC<{
   onReset,
 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 14, filter: 'blur(8px)' }}
-    whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+    initial={{ opacity: 0, y: 14 }}
+    whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, amount: 0.8 }}
     transition={revealTransition}
     className="mb-4 flex h-9 items-center justify-between gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
@@ -488,8 +488,8 @@ const VersusMark = () => (
         className="absolute left-1/2 top-1/2 z-10 h-20 w-[3px] -translate-x-1/2 -translate-y-1/2 rotate-[12deg] rounded-full bg-[linear-gradient(180deg,rgba(69,146,175,0.35)_0%,rgba(255,255,255,0.96)_45%,rgba(227,196,168,0.35)_100%)] shadow-[0_0_18px_rgba(255,255,255,0.58)] xl:hidden"
       />
       <motion.span
-        initial={{ opacity: 0, x: -16, y: 8, scale: 0.9, filter: 'blur(8px)' }}
-        whileInView={{ opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }}
+        initial={{ opacity: 0, x: -16, y: 8, scale: 0.9 }}
+        whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
         viewport={{ once: true, amount: 0.8 }}
         transition={{ duration: 0.6, delay: 0.32, ease: 'easeOut' }}
         className="absolute left-4 top-1/2 z-20 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:left-0 xl:text-6xl"
@@ -498,8 +498,8 @@ const VersusMark = () => (
         V
       </motion.span>
       <motion.span
-        initial={{ opacity: 0, x: 16, y: 8, scale: 0.9, filter: 'blur(8px)' }}
-        whileInView={{ opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }}
+        initial={{ opacity: 0, x: 16, y: 8, scale: 0.9 }}
+        whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
         viewport={{ once: true, amount: 0.8 }}
         transition={{ duration: 0.6, delay: 0.42, ease: 'easeOut' }}
         className="absolute right-4 top-1/2 z-20 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:right-0 xl:text-6xl"
@@ -533,6 +533,7 @@ const EditorPanel: React.FC<{
   const hasStartedTypingRef = useRef(false);
 
   const activeFile = files.find((f) => f.id === activeFileId) || files[0];
+  const activeLineCount = useMemo(() => activeFile.content.split('\n').length, [activeFile.content]);
 
   const startTypingAnimation = useCallback(() => {
     if (typingFrameRef.current) {
@@ -546,7 +547,7 @@ const EditorPanel: React.FC<{
     let index = 0;
 
     const typeNextChunk = () => {
-      index = Math.min(index + 6, source.length);
+      index = Math.min(index + 18, source.length);
 
       setFiles((prev) =>
         prev.map((file) =>
@@ -555,14 +556,14 @@ const EditorPanel: React.FC<{
       );
 
       if (index < source.length) {
-        typingFrameRef.current = window.setTimeout(typeNextChunk, 20);
+        typingFrameRef.current = window.setTimeout(typeNextChunk, 45);
         return;
       }
 
       setIsTyping(false);
     };
 
-    typingFrameRef.current = window.setTimeout(typeNextChunk, 270);
+    typingFrameRef.current = window.setTimeout(typeNextChunk, 220);
   }, [initialFiles]);
 
   useEffect(() => {
@@ -671,7 +672,7 @@ const EditorPanel: React.FC<{
                 key="editor"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.5 }}
                 className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20 flex flex-col"
               >
@@ -740,7 +741,7 @@ const EditorPanel: React.FC<{
                       </div>
                       <div className="absolute inset-0 flex">
                         <div className="h-full pt-4 pr-4 bg-[#1e1e1e] text-neutral-600 select-none text-sm leading-6 border-r border-white/5 mr-0 min-w-[50px] text-right overflow-hidden shrink-0">
-                          {Array.from({ length: activeFile.content.split('\n').length + 1 }).map(
+                          {Array.from({ length: activeLineCount + 1 }).map(
                             (_, i) => (
                               <div key={i}>{i + 1}</div>
                             )
@@ -818,7 +819,7 @@ const EditorPanel: React.FC<{
                   </div>
                   <div className="flex items-center gap-4">
                     <span>
-                      {chromeCopy.lineLabel} {activeFile.content.split('\n').length}, {chromeCopy.columnLabel} 1
+                      {chromeCopy.lineLabel} {activeLineCount}, {chromeCopy.columnLabel} 1
                     </span>
                     <span>UTF-8</span>
                     <span>{statusLanguage}</span>
@@ -896,13 +897,13 @@ const LegacyInstallPanel: React.FC<{
               key="legacy-installer"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+              exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.5 }}
               className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20 flex flex-col"
             >
               <motion.div
-                initial={{ opacity: 0, y: -10, filter: 'blur(6px)' }}
-                whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                initial={{ opacity: 0, y: -10 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.8 }}
                 transition={revealTransition}
                 className="h-12 bg-[#2d2d2d] flex items-center gap-3 px-3 sm:px-4 border-b border-black relative z-20"
