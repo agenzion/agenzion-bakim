@@ -3,9 +3,9 @@
   "portfolio": [
     {
       "id": "placeholder-project",
-      "title": "Projeler Yakında",
-      "description": "Sanity CMS bağlantısı tamamlandığında seçili işler ve detaylı proje anlatımları burada yer alacak.",
-      "label": "Sanity CMS",
+      "title": "PROJELER YAKINDA",
+      "description": "Projelerimizi keşfetmeye hazır olun",
+      "label": "WEB MASTERPIECES",
       "reviewUrl": "",
       "image": "/images/project-placeholder.jpg",
       "color": "#06B6D4"
