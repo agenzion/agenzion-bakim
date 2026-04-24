@@ -190,8 +190,8 @@ const serializeFilesForComparison = (
 
 const LiveResultView: React.FC<{
   preview: PreviewCopy;
-  disableExitAnimation?: boolean;
-}> = ({ preview, disableExitAnimation = false }) => {
+  disableAnimations?: boolean;
+}> = ({ preview, disableAnimations = false }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -285,9 +285,9 @@ const LiveResultView: React.FC<{
   return (
     <motion.div
       key="result"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={disableExitAnimation ? undefined : { opacity: 0, scale: 0.95 }}
+      initial={disableAnimations ? false : { opacity: 0, scale: 0.95 }}
+      animate={disableAnimations ? undefined : { opacity: 1, scale: 1 }}
+      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.95 }}
       className="w-full h-full flex flex-col bg-[#1e1e1e] relative rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20"
     >
       {/* Browser-like header */}
@@ -382,6 +382,7 @@ const PanelActionHeader: React.FC<{
   isActionReady?: boolean;
   actionDisabled?: boolean;
   resetDisabled?: boolean;
+  disableAnimations?: boolean;
   onAction: () => void;
   onReset: () => void;
 }> = ({
@@ -391,14 +392,15 @@ const PanelActionHeader: React.FC<{
   isActionReady = true,
   actionDisabled = false,
   resetDisabled = false,
+  disableAnimations = false,
   onAction,
   onReset,
 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 14 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, amount: 0.8 }}
-    transition={revealTransition}
+    initial={disableAnimations ? false : { opacity: 0, y: 14 }}
+    whileInView={disableAnimations ? undefined : { opacity: 1, y: 0 }}
+    viewport={disableAnimations ? undefined : { once: true, amount: 0.8 }}
+    transition={disableAnimations ? undefined : revealTransition}
     className="mb-4 flex h-9 items-center justify-between gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
   >
     <h3 className="min-w-0 truncate text-left text-lg font-bold leading-9 text-white brand-font sm:col-start-2 sm:text-center sm:text-2xl">
@@ -409,7 +411,7 @@ const PanelActionHeader: React.FC<{
         onClick={onAction}
         disabled={actionDisabled}
         className={`relative flex w-28 min-w-0 items-center justify-center gap-2 rounded-md bg-green-600 px-3 text-xs font-bold text-white transition-all hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 shadow-[0_0_15px_rgba(34,197,94,0.5)] hover:shadow-[0_0_25px_rgba(34,197,94,0.8)] ${
-          isActionReady ? 'animate-pulse hover:animate-none' : ''
+          isActionReady && !disableAnimations ? 'animate-pulse hover:animate-none' : ''
         }`}
       >
         {isBusy ? '...' : <Play size={12} fill="currentColor" className="shrink-0" />}
@@ -427,7 +429,7 @@ const PanelActionHeader: React.FC<{
   </motion.div>
 );
 
-const VersusMark = () => (
+const VersusMark = ({ disableAnimations = false }: { disableAnimations?: boolean }) => (
   <div
     aria-label="VS"
     className="relative flex h-28 w-32 items-center justify-center justify-self-center overflow-visible xl:h-[672px] xl:w-full xl:self-stretch"
@@ -464,10 +466,10 @@ const VersusMark = () => (
           stroke="url(#versus-route-trace)"
           strokeWidth="10"
           strokeLinecap="round"
-          initial={{ opacity: 0, pathLength: 0 }}
-          whileInView={{ opacity: 1, pathLength: 1 }}
-          viewport={{ once: true, amount: 0.7 }}
-          transition={{ duration: 1.15, delay: 0.15, ease: 'easeOut' }}
+          initial={disableAnimations ? false : { opacity: 0, pathLength: 0 }}
+          whileInView={disableAnimations ? undefined : { opacity: 1, pathLength: 1 }}
+          viewport={disableAnimations ? undefined : { once: true, amount: 0.7 }}
+          transition={disableAnimations ? undefined : { duration: 1.15, delay: 0.15, ease: 'easeOut' }}
           filter="url(#versus-route-glow)"
         />
         <motion.path
@@ -475,35 +477,38 @@ const VersusMark = () => (
           stroke="white"
           strokeWidth="2.4"
           strokeLinecap="round"
-          initial={{ opacity: 0, pathLength: 0 }}
-          whileInView={{ opacity: 0.95, pathLength: 1 }}
-          viewport={{ once: true, amount: 0.7 }}
-          transition={{ duration: 1.15, delay: 0.15, ease: 'easeOut' }}
+          initial={disableAnimations ? false : { opacity: 0, pathLength: 0 }}
+          whileInView={disableAnimations ? undefined : { opacity: 0.95, pathLength: 1 }}
+          viewport={disableAnimations ? undefined : { once: true, amount: 0.7 }}
+          transition={disableAnimations ? undefined : { duration: 1.15, delay: 0.15, ease: 'easeOut' }}
         />
       </svg>
       <motion.div
         aria-hidden="true"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, amount: 0.75 }}
-        transition={{ duration: 0.5, delay: 0.22, ease: 'easeOut' }}
+        initial={disableAnimations ? false : { opacity: 0 }}
+        animate={disableAnimations ? { opacity: 1 } : undefined}
+        whileInView={disableAnimations ? undefined : { opacity: 1 }}
+        viewport={disableAnimations ? undefined : { once: true, amount: 0.75 }}
+        transition={disableAnimations ? undefined : { duration: 0.5, delay: 0.22, ease: 'easeOut' }}
         className="absolute left-1/2 top-1/2 z-10 h-20 w-[3px] -translate-x-1/2 -translate-y-1/2 rotate-[12deg] rounded-full bg-[linear-gradient(180deg,rgba(69,146,175,0.35)_0%,rgba(255,255,255,0.96)_45%,rgba(227,196,168,0.35)_100%)] shadow-[0_0_18px_rgba(255,255,255,0.58)] xl:hidden"
       />
       <motion.span
-        initial={{ opacity: 0, x: -16, y: 8, scale: 0.9 }}
-        whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-        viewport={{ once: true, amount: 0.8 }}
-        transition={{ duration: 0.6, delay: 0.32, ease: 'easeOut' }}
+        initial={disableAnimations ? false : { opacity: 0, x: -16, y: 8, scale: 0.9 }}
+        animate={disableAnimations ? { opacity: 1, x: 0, y: 0, scale: 1 } : undefined}
+        whileInView={disableAnimations ? undefined : { opacity: 1, x: 0, y: 0, scale: 1 }}
+        viewport={disableAnimations ? undefined : { once: true, amount: 0.8 }}
+        transition={disableAnimations ? undefined : { duration: 0.6, delay: 0.32, ease: 'easeOut' }}
         className="absolute left-4 top-1/2 z-20 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:left-0 xl:text-6xl"
         style={{ textShadow: '0 0 18px rgba(255,255,255,0.45)' }}
       >
         V
       </motion.span>
       <motion.span
-        initial={{ opacity: 0, x: 16, y: 8, scale: 0.9 }}
-        whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-        viewport={{ once: true, amount: 0.8 }}
-        transition={{ duration: 0.6, delay: 0.42, ease: 'easeOut' }}
+        initial={disableAnimations ? false : { opacity: 0, x: 16, y: 8, scale: 0.9 }}
+        animate={disableAnimations ? { opacity: 1, x: 0, y: 0, scale: 1 } : undefined}
+        whileInView={disableAnimations ? undefined : { opacity: 1, x: 0, y: 0, scale: 1 }}
+        viewport={disableAnimations ? undefined : { once: true, amount: 0.8 }}
+        transition={disableAnimations ? undefined : { duration: 0.6, delay: 0.42, ease: 'easeOut' }}
         className="absolute right-4 top-1/2 z-20 -translate-y-1/2 -skew-x-6 text-5xl font-black leading-none text-white brand-font xl:right-0 xl:text-6xl"
         style={{ textShadow: '0 0 18px rgba(255,255,255,0.45)' }}
       >
@@ -519,19 +524,21 @@ const EditorPanel: React.FC<{
   runCopy: RunSequenceCopy;
   preview: PreviewCopy;
   statusLanguage?: string;
-  disableExitAnimation?: boolean;
+  disableAnimations?: boolean;
 }> = ({
   initialFiles,
   chromeCopy,
   runCopy,
   preview,
   statusLanguage = 'TSX',
-  disableExitAnimation = false,
+  disableAnimations = false,
 }) => {
-  const [files, setFiles] = useState(() => createEmptyFiles(initialFiles));
+  const [files, setFiles] = useState(() =>
+    disableAnimations ? initialFiles : createEmptyFiles(initialFiles)
+  );
   const [activeFileId, setActiveFileId] = useState<string>(() => initialFiles[0].id);
   const [isRunning, setIsRunning] = useState(false);
-  const [isTyping, setIsTyping] = useState(true);
+  const [isTyping, setIsTyping] = useState(!disableAnimations);
   const [showResult, setShowResult] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<{ msg: string; type: TerminalLogType }[]>([]);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
@@ -546,6 +553,12 @@ const EditorPanel: React.FC<{
   const activeLineCount = useMemo(() => activeFile.content.split('\n').length, [activeFile.content]);
 
   const startTypingAnimation = useCallback(() => {
+    if (disableAnimations) {
+      setFiles(initialFiles);
+      setIsTyping(false);
+      return;
+    }
+
     if (typingFrameRef.current) {
       window.clearTimeout(typingFrameRef.current);
     }
@@ -574,9 +587,18 @@ const EditorPanel: React.FC<{
     };
 
     typingFrameRef.current = window.setTimeout(typeNextChunk, 220);
-  }, [initialFiles]);
+  }, [disableAnimations, initialFiles]);
 
   useEffect(() => {
+    if (disableAnimations) {
+      hasStartedTypingRef.current = true;
+      return () => {
+        if (typingFrameRef.current) {
+          window.clearTimeout(typingFrameRef.current);
+        }
+      };
+    }
+
     const section = sectionRef.current;
     if (!section) return;
 
@@ -598,7 +620,7 @@ const EditorPanel: React.FC<{
         window.clearTimeout(typingFrameRef.current);
       }
     };
-  }, [startTypingAnimation]);
+  }, [disableAnimations, initialFiles, startTypingAnimation]);
 
   const handleCodeChange = (newCode: string) => {
     if (showResult || isTyping) return;
@@ -622,6 +644,13 @@ const EditorPanel: React.FC<{
     setIsTerminalOpen(false);
     setShowResult(false);
     setIsRunning(false);
+
+    if (disableAnimations) {
+      setFiles(initialFiles);
+      setIsTyping(false);
+      return;
+    }
+
     startTypingAnimation();
   };
 
@@ -672,6 +701,7 @@ const EditorPanel: React.FC<{
         isActionReady={!isTyping && !isRunning}
         actionDisabled={isRunning || isTyping}
         resetDisabled={isRunning}
+        disableAnimations={disableAnimations}
         onAction={runCode}
         onReset={handleReset}
       />
@@ -680,10 +710,10 @@ const EditorPanel: React.FC<{
             {!showResult ? (
               <motion.div
                 key="editor"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={disableExitAnimation ? undefined : { opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.5 }}
+                initial={disableAnimations ? false : { opacity: 0, scale: 0.95 }}
+                animate={disableAnimations ? undefined : { opacity: 1, scale: 1 }}
+                exit={disableAnimations ? undefined : { opacity: 0, scale: 0.95 }}
+                transition={disableAnimations ? undefined : { duration: 0.5 }}
                 className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20 flex flex-col"
               >
                 {/* IDE Title Bar */}
@@ -788,10 +818,10 @@ const EditorPanel: React.FC<{
                 <AnimatePresence>
                   {isTerminalOpen && (
                     <motion.div
-                      initial={{ y: '100%' }}
-                      animate={{ y: 0 }}
-                      exit={disableExitAnimation ? undefined : { y: '100%' }}
-                      transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                      initial={disableAnimations ? false : { y: '100%' }}
+                      animate={disableAnimations ? undefined : { y: 0 }}
+                      exit={disableAnimations ? undefined : { y: '100%' }}
+                      transition={disableAnimations ? undefined : { type: 'spring', bounce: 0, duration: 0.4 }}
                       className="absolute bottom-0 left-0 right-0 h-[40%] bg-black/95 backdrop-blur border-t border-white/20 z-30 flex flex-col font-mono"
                     >
                       <div className="h-8 bg-neutral-900 flex items-center justify-between px-4 border-b border-white/10">
@@ -815,7 +845,11 @@ const EditorPanel: React.FC<{
                             {log.msg}
                           </div>
                         ))}
-                        {isRunning && <div className="animate-pulse text-[#4592AF]">_</div>}
+                        {isRunning && (
+                          <div className={disableAnimations ? 'text-[#4592AF]' : 'animate-pulse text-[#4592AF]'}>
+                            _
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -839,7 +873,7 @@ const EditorPanel: React.FC<{
             ) : (
               <LiveResultView
                 preview={preview}
-                disableExitAnimation={disableExitAnimation}
+                disableAnimations={disableAnimations}
               />
             )}
           </AnimatePresence>
@@ -851,8 +885,8 @@ const EditorPanel: React.FC<{
 const LegacyInstallPanel: React.FC<{
   copy: LegacyEditorCopy;
   preview: PreviewCopy;
-  disableExitAnimation?: boolean;
-}> = ({ copy, preview, disableExitAnimation = false }) => {
+  disableAnimations?: boolean;
+}> = ({ copy, preview, disableAnimations = false }) => {
   const [showResult, setShowResult] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
   const [completedSteps, setCompletedSteps] = useState(0);
@@ -901,6 +935,7 @@ const LegacyInstallPanel: React.FC<{
         isActionReady={!isInstalling}
         actionDisabled={isInstalling}
         resetDisabled={isInstalling}
+        disableAnimations={disableAnimations}
         onAction={runInstall}
         onReset={handleReset}
       />
@@ -909,17 +944,17 @@ const LegacyInstallPanel: React.FC<{
           {!showResult ? (
             <motion.div
               key="legacy-installer"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={disableExitAnimation ? undefined : { opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.5 }}
+              initial={disableAnimations ? false : { opacity: 0, scale: 0.95 }}
+              animate={disableAnimations ? undefined : { opacity: 1, scale: 1 }}
+              exit={disableAnimations ? undefined : { opacity: 0, scale: 0.95 }}
+              transition={disableAnimations ? undefined : { duration: 0.5 }}
               className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-4 ring-black/20 flex flex-col"
             >
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.8 }}
-                transition={revealTransition}
+                initial={disableAnimations ? false : { opacity: 0, y: -10 }}
+                whileInView={disableAnimations ? undefined : { opacity: 1, y: 0 }}
+                viewport={disableAnimations ? undefined : { once: true, amount: 0.8 }}
+                transition={disableAnimations ? undefined : revealTransition}
                 className="h-12 bg-[#2d2d2d] flex items-center gap-3 px-3 sm:px-4 border-b border-black relative z-20"
               >
                 <div className="flex gap-2 shrink-0">
@@ -930,10 +965,11 @@ const LegacyInstallPanel: React.FC<{
               </motion.div>
 
             <motion.div
-              variants={wordpressLoadContainerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.35 }}
+              variants={disableAnimations ? undefined : wordpressLoadContainerVariants}
+              initial={disableAnimations ? "visible" : "hidden"}
+              animate={disableAnimations ? "visible" : undefined}
+              whileInView={disableAnimations ? undefined : "visible"}
+              viewport={disableAnimations ? undefined : { once: true, amount: 0.35 }}
               className="flex-1 overflow-hidden bg-[#f0f0f1] text-[#1d2327] font-sans"
             >
               <motion.div variants={wordpressLoadContainerVariants} className="h-full flex overflow-hidden">
@@ -1027,7 +1063,9 @@ const LegacyInstallPanel: React.FC<{
                             </div>
                             <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#dcdcde]">
                               <div
-                                className="h-full rounded-full bg-[#2271b1] transition-all duration-500"
+                                className={`h-full rounded-full bg-[#2271b1] ${
+                                  disableAnimations ? 'transition-none' : 'transition-all duration-500'
+                                }`}
                                 style={{ width: `${progress}%` }}
                               />
                             </div>
@@ -1049,7 +1087,7 @@ const LegacyInstallPanel: React.FC<{
                                       isDone
                                         ? 'bg-[#00a32a] text-white'
                                         : isActive
-                                        ? 'bg-[#2271b1] text-white animate-pulse'
+                                        ? `bg-[#2271b1] text-white ${disableAnimations ? '' : 'animate-pulse'}`
                                         : 'bg-[#f0f0f1] text-[#646970]'
                                     }`}
                                   >
@@ -1093,7 +1131,7 @@ const LegacyInstallPanel: React.FC<{
         ) : (
           <LiveResultView
             preview={preview}
-            disableExitAnimation={disableExitAnimation}
+            disableAnimations={disableAnimations}
           />
         )}
       </AnimatePresence>
@@ -1112,25 +1150,36 @@ const CodeEditor: React.FC<{
     <section className="py-32 relative flex justify-center items-center min-h-screen bg-neutral-950 overflow-hidden border-t border-white/5">
       <div className="w-full px-4 md:px-6 relative z-10">
         <motion.div
-          variants={wordpressLoadContainerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.65 }}
+          variants={isMobile ? undefined : wordpressLoadContainerVariants}
+          initial={isMobile ? "visible" : "hidden"}
+          animate={isMobile ? "visible" : undefined}
+          whileInView={isMobile ? undefined : "visible"}
+          viewport={isMobile ? undefined : { once: true, amount: 0.65 }}
           className="flex flex-col items-center mb-16"
         >
-          <motion.h2 variants={revealItemVariants} className="text-4xl md:text-6xl font-bold text-white text-center brand-font">
+          <motion.h2
+            variants={isMobile ? undefined : revealItemVariants}
+            initial={isMobile ? false : undefined}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
+            className="text-4xl md:text-6xl font-bold text-white text-center brand-font"
+          >
             {copy.heading}
           </motion.h2>
-          <motion.p variants={revealItemVariants} className="mt-4 text-neutral-400 max-w-lg text-center">
+          <motion.p
+            variants={isMobile ? undefined : revealItemVariants}
+            initial={isMobile ? false : undefined}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
+            className="mt-4 text-neutral-400 max-w-lg text-center"
+          >
             {copy.description}
           </motion.p>
         </motion.div>
 
         <div className="mx-auto grid w-full grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_7rem_minmax(0,1fr)]">
           <LegacyInstallPanel
-            key="legacy-installer"
+            key={`legacy-installer-${isMobile ? 'mobile' : 'desktop'}`}
             copy={copy.legacyEditor}
-            disableExitAnimation={isMobile}
+            disableAnimations={isMobile}
             preview={{
               previewUrl: copy.legacyEditor.previewUrl,
               previewLabel: copy.legacyEditor.previewLabel,
@@ -1138,13 +1187,13 @@ const CodeEditor: React.FC<{
               title: copy.legacyEditor.previewLabel,
             }}
           />
-          <VersusMark />
+          <VersusMark disableAnimations={isMobile} />
           <EditorPanel
-            key="modern-editor"
+            key={`modern-editor-${isMobile ? 'mobile' : 'desktop'}`}
             initialFiles={modernFiles}
             chromeCopy={copy}
             runCopy={copy}
-            disableExitAnimation={isMobile}
+            disableAnimations={isMobile}
             preview={{
               previewUrl: copy.previewUrl,
               previewLabel: copy.previewLabel,
@@ -1154,10 +1203,11 @@ const CodeEditor: React.FC<{
         </div>
 
         <motion.p
-          variants={revealItemVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.75 }}
+          variants={isMobile ? undefined : revealItemVariants}
+          initial={isMobile ? false : "hidden"}
+          animate={isMobile ? { opacity: 1, y: 0 } : undefined}
+          whileInView={isMobile ? undefined : "visible"}
+          viewport={isMobile ? undefined : { once: true, amount: 0.75 }}
           className="mt-10 text-center text-lg md:text-2xl text-neutral-300 brand-font"
         >
           {copy.closingMessage}

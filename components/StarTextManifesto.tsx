@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/
 import { useEffect, useRef, useState } from "react";
 import type { TouchEvent, WheelEvent } from "react";
 import { ABOUT_STARFLOW_EVENT, type AboutStarflowDetail } from "@/lib/aboutStarflow";
+import useIsMobile from "@/lib/useIsMobile";
 import Footer from "./Footer";
 
 type Point = {
@@ -15,6 +16,17 @@ type ManifestoSection = {
   title: string;
   text: string;
   showsFooter?: boolean;
+};
+
+type StarTextManifestoProps = {
+  sections: readonly ManifestoSection[];
+  indicatorLabel: string;
+  footerCopy: {
+    copyrightName: string;
+  };
+  allowPageScrollAtEdges?: boolean;
+  scrollDriven?: boolean;
+  showIndicators?: boolean;
 };
 
 type SectionTargets = {
@@ -55,6 +67,14 @@ const DESCRIPTION_TRANSITION = {
   duration: 0.28,
   ease: [0.22, 1, 0.36, 1],
 } as const;
+
+const MOBILE_STATIC_STARS = Array.from({ length: 42 }, (_, index) => ({
+  id: index,
+  top: `${(index * 23 + 11) % 100}%`,
+  left: `${(index * 37 + 7) % 100}%`,
+  size: index % 4 === 0 ? 2 : 1,
+  opacity: 0.2 + ((index * 13) % 50) / 100,
+}));
 
 const getContentFrame = (width: number, height: number) => {
   if (width < MOBILE_BREAKPOINT) {
@@ -504,23 +524,14 @@ const getTitleCenterY = (
   return centerY + getTitleOffsetY(hasDescription, width);
 };
 
-export default function StarTextManifesto({
+function AnimatedStarTextManifesto({
   sections,
   indicatorLabel,
   footerCopy,
   allowPageScrollAtEdges = false,
   scrollDriven = false,
   showIndicators = true,
-}: {
-  sections: readonly ManifestoSection[];
-  indicatorLabel: string;
-  footerCopy: {
-    copyrightName: string;
-  };
-  allowPageScrollAtEdges?: boolean;
-  scrollDriven?: boolean;
-  showIndicators?: boolean;
-}) {
+}: StarTextManifestoProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState(0);
   const [viewport, setViewport] = useState({ width: 0, height: 0 });
@@ -664,6 +675,10 @@ export default function StarTextManifesto({
   });
 
   useEffect(() => {
+    if (scrollDriven && window.innerWidth < MOBILE_BREAKPOINT) {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -956,7 +971,7 @@ export default function StarTextManifesto({
         window.cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [sections]);
+  }, [scrollDriven, sections]);
 
   useEffect(() => {
     const canvas = titleOverlayCanvasRef.current;
@@ -1194,4 +1209,80 @@ export default function StarTextManifesto({
       </div>
     </div>
   );
+}
+
+const getMobileStaticTitleLines = (title: string) => {
+  const hasManualBreaks = /<br\s*\/?>/i.test(title) || title.includes("\n");
+  const explicitLines = getExplicitTitleLines(title);
+
+  if (hasManualBreaks && explicitLines.length > 0) {
+    return explicitLines;
+  }
+
+  return getPlainTitle(title).split(/\s+/).filter(Boolean);
+};
+
+function MobileStaticStarTextManifesto({
+  sections,
+  footerCopy,
+}: StarTextManifestoProps) {
+  const showsFooter = sections.some((section) => section.showsFooter);
+
+  return (
+    <div className="relative w-full overflow-hidden bg-[linear-gradient(to_bottom,#020205_0%,#040712_38%,#070a17_74%,#020205_100%)] px-4 py-24 md:hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        {MOBILE_STATIC_STARS.map((star) => (
+          <span
+            key={star.id}
+            className="absolute rounded-full bg-white"
+            style={{
+              top: star.top,
+              left: star.left,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              opacity: star.opacity,
+              boxShadow: "0 0 10px rgba(255,255,255,0.42)",
+            }}
+          />
+        ))}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#020205] to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#020205] to-transparent" />
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-xl flex-col justify-center gap-16 py-8">
+        {sections.map((section, index) => (
+          <section key={`${section.title}-${index}`} className="text-center">
+            <h2 className="brand-font text-[clamp(2.05rem,8.8vw,2.5rem)] font-extrabold leading-[1.02] tracking-[0.055em] text-white drop-shadow-[0_0_16px_rgba(255,255,255,0.24)] [overflow-wrap:anywhere]">
+              {getMobileStaticTitleLines(section.title).map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </h2>
+            {section.text ? (
+              <p className="mx-auto mt-6 max-w-[21rem] text-base font-light leading-relaxed tracking-wide text-gray-200">
+                {section.text}
+              </p>
+            ) : null}
+          </section>
+        ))}
+      </div>
+
+      {showsFooter ? (
+        <div className="relative z-10 -mx-4 mt-4 bg-[linear-gradient(180deg,rgba(2,2,6,0.86)_0%,rgba(2,2,6,0.96)_100%)]">
+          <Footer copy={footerCopy} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export default function StarTextManifesto(props: StarTextManifestoProps) {
+  const isMobile = useIsMobile();
+
+  if (props.scrollDriven && isMobile) {
+    return <MobileStaticStarTextManifesto {...props} />;
+  }
+
+  return <AnimatedStarTextManifesto {...props} />;
 }
