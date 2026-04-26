@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Outfit } from 'next/font/google';
 import SpaceRouteBackground from '@/components/SpaceRouteBackground';
+import ViewportMetrics from '@/components/ViewportMetrics';
 import { absoluteUrl, getSiteSettings, siteConfig } from '@/lib/site';
 import './globals.css';
 
@@ -172,6 +173,7 @@ async function RootLayoutContent({
             __html: JSON.stringify(rootJsonLd),
           }}
         />
+        <ViewportMetrics />
         <SpaceRouteBackground />
         <div className="relative z-10">
           {children}

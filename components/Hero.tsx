@@ -73,19 +73,15 @@ const Hero: React.FC<{
   const MOON_IMAGE_SRC = '/images/space/moon.jpg';
 
   // SUN GLOW / CORONA EFFECT
-  // Keep the expensive blur/paint work static and drive only opacity/scale on scroll.
-  const warmGlowOpacity = useTransform(
+  const sunShadow = useTransform(
     scrollYProgress,
     [0.5, END_MOVEMENT - 0.05, END_MOVEMENT],
-    [1, 0.5, 0]
+    [
+      '0px 0px 120px 40px rgba(255, 140, 0, 0.5), 0px 0px 60px 20px rgba(255, 200, 50, 0.7)',
+      '0px 0px 60px 20px rgba(255, 140, 0, 0.3), 0px 0px 20px 10px rgba(255, 200, 50, 0.5)',
+      '0px 0px 20px 5px rgba(255, 255, 255, 1), 0px 0px 80px 20px rgba(255, 255, 255, 0.8), 0px 0px 150px 40px rgba(150, 200, 255, 0.5), 0px 0px 300px 80px rgba(100, 150, 255, 0.2)',
+    ]
   );
-  const warmGlowScale = useTransform(scrollYProgress, [0.5, END_MOVEMENT], [1, 0.86]);
-  const coronaOpacity = useTransform(
-    scrollYProgress,
-    [END_MOVEMENT - 0.08, END_MOVEMENT - 0.02, END_MOVEMENT],
-    [0, 0.35, 1]
-  );
-  const coronaScale = useTransform(scrollYProgress, [END_MOVEMENT - 0.08, END_MOVEMENT], [0.76, 1]);
   const sunSurfaceOpacity = useTransform(
     scrollYProgress,
     [0, END_MOVEMENT - 0.05, END_MOVEMENT],
@@ -218,17 +214,8 @@ const Hero: React.FC<{
 
               {/* THE SUN */}
               <motion.div
-                aria-hidden="true"
-                style={{ opacity: warmGlowOpacity, scale: warmGlowScale }}
-                className="pointer-events-none absolute z-10 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(255,190,84,0.48)_0%,rgba(255,138,38,0.24)_42%,transparent_72%)] blur-2xl md:h-[28rem] md:w-[28rem] md:blur-3xl"
-              />
-              <motion.div
-                aria-hidden="true"
-                style={{ opacity: coronaOpacity, scale: coronaScale }}
-                className="pointer-events-none absolute z-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.9)_0%,rgba(190,220,255,0.4)_22%,rgba(106,158,255,0.18)_52%,transparent_74%)] blur-2xl md:h-[34rem] md:w-[34rem] md:blur-3xl"
-              />
-              <motion.div
                 style={{
+                  boxShadow: sunShadow,
                   backgroundColor: sunColor,
                 }}
                 className="absolute z-20 h-56 w-56 overflow-hidden rounded-full md:h-80 md:w-80"

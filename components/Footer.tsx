@@ -42,7 +42,7 @@ const Footer: React.FC<{
   const links = socialLinks.length ? socialLinks : defaultSocialLinks;
 
   return (
-    <footer className="border-t border-white/5 bg-transparent px-6 py-8 text-white">
+    <footer className="border-t border-white/5 bg-transparent px-6 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-8 text-white">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 md:flex-row">
         <p className="text-center text-xs tracking-[0.18em] text-white/38 md:text-left">
           © {new Date().getFullYear()} {copy.copyrightName}.

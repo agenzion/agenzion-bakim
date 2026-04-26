@@ -220,7 +220,12 @@ const SpaceRouteBackground = () => {
   const route = getSkyRoute(pathname);
 
   if (!route) {
-    return null;
+    return (
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed left-0 top-0 z-0 h-screen w-full overflow-hidden bg-[#020205] [height:100lvh]"
+      />
+    );
   }
 
   const routeIndex = SKY_ROUTE_INDEX[route];
