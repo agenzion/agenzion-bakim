@@ -50,13 +50,22 @@ function parseSmtpPort(value: string | undefined) {
   return Number.isFinite(port) ? port : 465;
 }
 
+function parseSmtpSecure(value: string | undefined, port: number) {
+  if (value !== undefined) {
+    return value !== 'false';
+  }
+
+  return port === 465;
+}
+
 export async function POST(request: Request) {
   const smtpHost = process.env.CONTACT_SMTP_HOST;
   const smtpPort = parseSmtpPort(process.env.CONTACT_SMTP_PORT);
   const smtpUser = process.env.CONTACT_SMTP_USER;
   const smtpPass = process.env.CONTACT_SMTP_PASS;
-  const smtpSecure = (process.env.CONTACT_SMTP_SECURE ?? 'true') !== 'false';
-  const sender = process.env.CONTACT_FORM_FROM ?? (smtpUser ? `Agenzion Web Studio <${smtpUser}>` : undefined);
+  const smtpSecure = parseSmtpSecure(process.env.CONTACT_SMTP_SECURE, smtpPort);
+  const senderName = normalizeInput(process.env.CONTACT_FORM_SENDER_NAME) || 'Agenzion Web Studio';
+  const sender = smtpUser ? `${senderName} <${smtpUser}>` : undefined;
   const recipient = process.env.CONTACT_FORM_TO ?? DEFAULT_CONTACT_RECIPIENT;
 
   if (!smtpHost || !smtpUser || !smtpPass || !sender) {
