@@ -9,7 +9,7 @@ export const siteConfig = {
   favicon: '/favicon.png',
   description:
     'Agenzion; performans, SEO ve yaratıcı etkileşimi birlikte ele alan İstanbul merkezli butik web tasarım ve geliştirme stüdyosudur.',
-  email: 'info@agenzion.com',
+  email: 'studio@agenzion.com',
   phone: '+905404553444',
   address: {
     streetAddress: 'Ataköy 7-8-9-10. Kısım Mah. Çobançeşme E-5, Yan Yol No: 14/A, İKÜ TEKMER',

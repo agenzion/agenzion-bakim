@@ -269,13 +269,13 @@ export const siteContent = {
       messageLabel: 'Proje Detayları',
       messagePlaceholder: 'Projenizden bahsedin...',
       errorMessage:
-        'Mesaj şu anda gönderilemedi. Lütfen tekrar deneyin veya info@agenzion.com adresine doğrudan yazın.',
+        'Mesaj şu anda gönderilemedi. Lütfen tekrar deneyin veya studio@agenzion.com adresine doğrudan yazın.',
       submittingLabel: 'GÖNDERİLİYOR...',
-      submitLabel: 'TEKLİF AL',
+      submitLabel: 'Gönder',
       addressLine1:
         'Ataköy 7-8-9-10. Kısım Mah. Çobançeşme E-5, Yan Yol No: 14/A, İKÜ TEKMER',
       addressLine2: '34158 Bakırköy/İstanbul - TÜRKİYE',
-      emailValue: 'info@agenzion.com',
+      emailValue: 'studio@agenzion.com',
       emailHint: 'Proje talepleri ve iş birlikleri',
       phoneValue: '+90 (540) 455 34 44',
       phoneHint: 'Pzt - Cum / 09:00 - 18:00',
@@ -549,13 +549,13 @@ export const siteContent = {
       messageLabel: 'Project Details',
       messagePlaceholder: 'Tell us about your project...',
       errorMessage:
-        'Your message could not be sent right now. Please try again or email info@agenzion.com directly.',
+        'Your message could not be sent right now. Please try again or email studio@agenzion.com directly.',
       submittingLabel: 'SENDING...',
-      submitLabel: 'GET A QUOTE',
+      submitLabel: 'Send',
       addressLine1:
         'Atakoy 7-8-9-10. Kisim Mah. Cobancesme E-5, Side Road No: 14/A, IKU TEKMER',
       addressLine2: '34158 Bakirkoy / Istanbul - TURKEY',
-      emailValue: 'info@agenzion.com',
+      emailValue: 'studio@agenzion.com',
       emailHint: 'Project requests and partnerships',
       phoneValue: '+90 (540) 455 34 44',
       phoneHint: 'Mon - Fri / 09:00 - 18:00',

@@ -557,7 +557,7 @@ const Contact: React.FC<ContactProps> = ({
                   </div>
                   <div>
                     <a
-                      href="mailto:info@agenzion.com"
+                      href="mailto:studio@agenzion.com"
                       className="inline-block transition-colors hover:text-[#4592AF]"
                     >
                       <p className="brand-font text-lg font-bold text-white">{copy.emailValue}</p>
